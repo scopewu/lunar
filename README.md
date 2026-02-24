@@ -1,14 +1,14 @@
-# Lunar Calendar
+# Traditional Chinese Calendar
 
-A Chinese Lunar Calendar (农历) web service deployed on Cloudflare Workers, displaying traditional calendar information including stems & branches (天干地支), zodiac (生肖), and daily activities (宜忌).
+A Traditional Chinese Calendar (农历) web service deployed on Cloudflare Workers, displaying traditional calendar information including stems & branches (天干地支), zodiac (生肖), and daily activities (宜忌).
 
 ## Live Demo
 
-Visit [lunar.tie.pub](https://lunar.tie.pub) to view today's lunar calendar information.
+Visit [lunar.tie.pub](https://lunar.tie.pub) to view today's traditional Chinese calendar information.
 
 ## Features
 
-- **Gregorian & Lunar Dates**: Display both solar and lunar calendar dates
+- **Gregorian & Lunar Dates**: Display both solar and traditional Chinese calendar dates
 - **Stems & Branches (天干地支)**: Year, month, and day in traditional Chinese sexagenary cycle
 - **Zodiac (生肖)**: Chinese zodiac animal for the current year
 - **Daily Activities (宜忌)**: Traditional guidance on suitable activities to do and avoid

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a Cloudflare Worker that displays the Chinese Lunar Calendar (农历) with traditional calendar information including stems & branches (天干地支), zodiac (生肖), and daily activities (宜忌).
+This is a Cloudflare Worker that displays the Traditional Chinese Calendar (农历) with traditional calendar information including stems & branches (天干地支), zodiac (生肖), and daily activities (宜忌).
 
 ## Tech Stack
 

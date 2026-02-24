@@ -14,32 +14,37 @@ export default {
 		const yi = lunar.getDayYi();
 		const ji = lunar.getDayJi();
 
+		const year = new Date().getFullYear();
+
 		const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>农历 Lunar Calendar</title>
-	<meta name="description" content="查看今日农历信息 - ${lunarDate}。包括天干地支、生肖、宜忌等传统文化内容。Check today's lunar calendar information including stems & branches, zodiac, and daily activities.">
-	<meta name="keywords" content="农历, 黄历, 天干地支, 生肖, Lunar Calendar, Chinese Calendar, 宜忌, 日期">
+	<title>农历 Traditional Chinese Calendar</title>
+	<meta name="description" content="查看今日农历信息 - ${lunarDate}。包括天干地支、生肖、宜忌等传统文化内容。Check today's traditional chinese calendar information including stems & branches, zodiac, and daily activities.">
+	<meta name="keywords" content="农历, 黄历, 天干地支, 生肖, the traditional chinese calendar, Chinese Calendar, 宜忌, 日期">
 	<meta name="author" content="吴文俊（Wú Wénjùn）">
 	<link rel="author" href="https://tie.pub/me/">
 	<meta name="robots" content="index, follow">
 	<meta name="theme-color" content="#DC143C">
-	<meta property="og:title" content="农历 ${lunarDate} | Lunar Calendar">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+	<meta property="og:title" content="农历 ${lunarDate} | Traditional Chinese Calendar">
 	<meta property="og:description" content="查看今日农历、天干地支、生肖及宜忌信息">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="https://lunar.tie.pub">
 	<meta property="og:locale" content="zh_CN">
 	<meta name="twitter:card" content="summary">
-	<meta name="twitter:title" content="农历 ${lunarDate} | Lunar Calendar">
+	<meta name="twitter:title" content="农历 ${lunarDate} | Traditional Chinese Calendar">
 	<meta name="twitter:description" content="查看今日农历、天干地支、生肖及宜忌信息">
 	<link rel="canonical" href="https://lunar.tie.pub">
 	<script type="application/ld+json">
 	{
 	  "@context": "https://schema.org",
 	  "@type": "WebPage",
-	  "name": "农历 ${lunarDate} - Lunar Calendar",
+	  "name": "农历 ${lunarDate} - Traditional Chinese Calendar",
 	  "description": "查看今日农历、天干地支、生肖及宜忌等传统文化信息",
  	  "url": "https://lunar.tie.pub",
 	  "datePublished": "${gregorianDate}",
@@ -53,6 +58,40 @@ export default {
 	</script>
 
 	<style>
+		/* ========== CSS Variables ========== */
+		:root {
+			/* Colors */
+			--color-primary-red: #8B0000;
+			--color-bright-red: #DC143C;
+			--color-gold: #FFD700;
+			--color-cream: #FFF8DC;
+			--color-goldenrod: #DAA520;
+			--color-light-salmon: #FFA07A;
+			--color-deep-red: #5C0000;
+			--color-semi-gold: rgba(255, 215, 0, 0.15);
+			--color-semi-red: rgba(139, 0, 0, 0.85);
+
+			/* Typography */
+			--font-display: 'Ma Shan Zheng', cursive;
+			--font-heading: 'ZCOOL XiaoWei', serif;
+			--font-body: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+
+			/* Spacing */
+			--space-xs: 4px;
+			--space-sm: 8px;
+			--space-md: 16px;
+			--space-lg: 24px;
+			--space-xl: 32px;
+
+			/* Effects */
+			--shadow-card: 0 25px 70px rgba(0, 0, 0, 0.6),
+							 0 0 50px rgba(255, 215, 0, 0.25),
+							 inset 0 0 80px rgba(255, 215, 0, 0.08);
+			--shadow-text: 2px 2px 8px rgba(0, 0, 0, 0.4);
+			--shadow-subtle: 1px 1px 3px rgba(0, 0, 0, 0.25);
+		}
+
+		/* ========== Reset & Base ========== */
 		* {
 			margin: 0;
 			padding: 0;
@@ -60,81 +99,147 @@ export default {
 		}
 
 		body {
-			font-family: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+			font-family: var(--font-body);
 			min-height: 100vh;
 			min-height: 100dvh;
-			background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #FFD700 100%);
+			background:
+				radial-gradient(circle at 20% 30%, rgba(220, 20, 60, 0.15) 0%, transparent 50%),
+				radial-gradient(circle at 80% 70%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+				linear-gradient(135deg, var(--color-primary-red) 0%, var(--color-bright-red) 45%, var(--color-gold) 100%);
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			padding: 20px;
 			overflow-x: hidden;
+			position: relative;
 		}
 
-		.container {
-			max-width: 500px;
+		/* Noise texture overlay */
+		body::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
 			width: 100%;
-			background: rgba(139, 0, 0, 0.85);
-			border-radius: 20px;
-			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-						0 0 40px rgba(255, 215, 0, 0.3),
-						inset 0 0 60px rgba(255, 215, 0, 0.1);
-			border: 2px solid rgba(255, 215, 0, 0.4);
-			padding: 40px 30px;
-			color: #FFF8DC;
-			animation: fadeIn 0.8s ease-out;
+			height: 100%;
+			pointer-events: none;
+			opacity: 0.03;
+			z-index: 1;
+			background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 		}
 
-		@keyframes fadeIn {
+		/* ========== Container ========== */
+		.container {
+			position: relative;
+			z-index: 2;
+			max-width: 540px;
+			width: 100%;
+			background: var(--color-semi-red);
+			border-radius: 24px;
+			box-shadow: var(--shadow-card);
+			border: 2px solid rgba(255, 215, 0, 0.35);
+			padding: 48px 36px 40px;
+			color: var(--color-cream);
+			animation: containerFadeIn 1s cubic-bezier(0.22, 1, 0.36, 1);
+		}
+
+		/* Decorative corner borders */
+		.container::before,
+		.container::after {
+			content: '';
+			position: absolute;
+			width: 60px;
+			height: 60px;
+			border: 2px solid var(--color-gold);
+			opacity: 0.6;
+			pointer-events: none;
+		}
+
+		.container::before {
+			top: 12px;
+			left: 12px;
+			border-right: none;
+			border-bottom: none;
+			border-radius: 12px 0 0 0;
+		}
+
+		.container::after {
+			bottom: 12px;
+			right: 12px;
+			border-left: none;
+			border-top: none;
+			border-radius: 0 0 12px 0;
+		}
+
+		@keyframes containerFadeIn {
 			from {
 				opacity: 0;
-				transform: translateY(20px);
+				transform: translateY(30px) scale(0.95);
 			}
 			to {
 				opacity: 1;
-				transform: translateY(0);
+				transform: translateY(0) scale(1);
 			}
 		}
 
+		/* ========== Header ========== */
 		.header {
 			text-align: center;
-			margin-bottom: 30px;
-			padding-bottom: 20px;
-			border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+			margin-bottom: 36px;
+			padding-bottom: 24px;
+			border-bottom: 2px solid rgba(255, 215, 0, 0.25);
+			position: relative;
+		}
+
+		/* Decorative element */
+		.header::after {
+			content: '◆';
+			position: absolute;
+			bottom: -9px;
+			left: 50%;
+			transform: translateX(-50%);
+			font-size: 14px;
+			color: var(--color-gold);
+			background: var(--color-primary-red);
+			padding: 0 10px;
 		}
 
 		.title {
-			font-size: 2.5rem;
-			font-weight: bold;
-			color: #FFD700;
-			text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-			margin-bottom: 8px;
-			letter-spacing: 4px;
+			font-family: var(--font-display);
+			font-size: 3rem;
+			color: var(--color-gold);
+			text-shadow: var(--shadow-text);
+			margin-bottom: 6px;
+			letter-spacing: 8px;
+			line-height: 1.2;
 		}
 
 		.subtitle {
-			font-size: 1rem;
-			color: #FFF8DC;
-			opacity: 0.9;
-			font-style: italic;
+			font-family: var(--font-heading);
+			font-size: 1.1rem;
+			color: var(--color-cream);
+			opacity: 0.85;
+			letter-spacing: 3px;
+			font-weight: 400;
 		}
 
+		/* ========== Sections ========== */
 		.section {
-			margin-bottom: 25px;
-			animation: slideIn 0.6s ease-out backwards;
+			margin-bottom: 28px;
+			animation: sectionSlideIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 		}
 
-		.section:nth-child(1) { animation-delay: 0.1s; }
-		.section:nth-child(2) { animation-delay: 0.2s; }
-		.section:nth-child(3) { animation-delay: 0.3s; }
-		.section:nth-child(4) { animation-delay: 0.4s; }
-		.section:nth-child(5) { animation-delay: 0.5s; }
-		.section:nth-child(6) { animation-delay: 0.6s; }
+		.section:nth-child(1) { animation-delay: 0.08s; }
+		.section:nth-child(2) { animation-delay: 0.16s; }
+		.section:nth-child(3) { animation-delay: 0.24s; }
+		.section:nth-child(4) { animation-delay: 0.32s; }
+		.section:nth-child(5) { animation-delay: 0.4s; }
+		.section:nth-child(6) { animation-delay: 0.48s; }
 
-		@keyframes slideIn {
+		@keyframes sectionSlideIn {
 			from {
 				opacity: 0;
-				transform: translateX(-10px);
+				transform: translateX(-15px);
 			}
 			to {
 				opacity: 1;
@@ -142,190 +247,282 @@ export default {
 			}
 		}
 
+		/* ========== Labels ========== */
 		.label {
-			font-size: 0.85rem;
-			color: #FFD700;
-			margin-bottom: 8px;
+			font-size: 0.8rem;
+			color: var(--color-gold);
+			margin-bottom: 10px;
 			text-transform: uppercase;
-			letter-spacing: 2px;
+			letter-spacing: 3px;
 			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 4px;
 		}
 
+		.label::before {
+			content: '—';
+			color: var(--color-goldenrod);
+			font-size: 0.9rem;
+		}
 		.label-en {
-			font-size: 0.75rem;
-			color: #DAA520;
-			margin-left: 6px;
+			font-size: 0.7rem;
+			color: var(--color-goldenrod);
+			margin-left: 4px;
 			text-transform: none;
-			letter-spacing: 1px;
-			font-weight: normal;
+			letter-spacing: 1.5px;
+			font-weight: 400;
+			opacity: 0.8;
 		}
 
+		/* ========== Values ========== */
 		.value {
-			font-size: 1.3rem;
-			color: #FFF8DC;
-			line-height: 1.6;
-			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+			font-size: 1.35rem;
+			color: var(--color-cream);
+			line-height: 1.7;
+			text-shadow: var(--shadow-subtle);
 		}
 
 		.value-large {
-			font-size: 1.8rem;
-			color: #FFD700;
-			font-weight: bold;
-			letter-spacing: 2px;
+			font-family: var(--font-heading);
+			font-size: 2rem;
+			color: var(--color-gold);
+			font-weight: 500;
+			letter-spacing: 3px;
+			text-shadow: var(--shadow-text);
 		}
 
+		/* ========== Stems & Branches ========== */
 		.stems-branches {
 			display: flex;
 			flex-direction: column;
-			gap: 8px;
+			gap: 10px;
 		}
 
 		.stem-branch {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			padding: 8px 12px;
-			background: rgba(255, 215, 0, 0.1);
-			border-radius: 8px;
-			border-left: 3px solid #FFD700;
-			transition: all 0.3s ease;
+			padding: 10px 16px;
+			background: linear-gradient(90deg, var(--color-semi-gold) 0%, rgba(255, 215, 0, 0.05) 100%);
+			border-radius: 10px;
+			border-left: 3px solid var(--color-gold);
+			transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+			position: relative;
+			overflow: hidden;
 		}
 
+		/* Shimmer effect */
+		.stem-branch::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+			transition: left 0.6s ease;
+		}
 		.stem-branch:hover {
-			background: rgba(255, 215, 0, 0.2);
-			transform: translateX(5px);
+			background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.08) 100%);
+			transform: translateX(8px);
+			border-left-color: var(--color-goldenrod);
 		}
 
+		.stem-branch:hover::before {
+			left: 100%;
+		}
 		.stem-branch-label {
 			font-size: 0.9rem;
-			color: #FFD700;
+			color: var(--color-gold);
+			font-weight: 500;
 		}
 
 		.stem-branch-value {
-			font-size: 1.1rem;
-			color: #FFF8DC;
-			font-weight: bold;
+			font-size: 1.15rem;
+			color: var(--color-cream);
+			font-weight: 600;
+			font-family: var(--font-heading);
 		}
 
+		/* ========== Zodiac ========== */
 		.zodiac-container {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			gap: 15px;
-			padding: 15px;
-			background: rgba(255, 215, 0, 0.15);
-			border-radius: 12px;
-			border: 2px solid rgba(255, 215, 0, 0.3);
+			gap: 18px;
+			padding: 20px;
+			background:
+				radial-gradient(circle at center, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.08) 100%);
+			border-radius: 16px;
+			border: 2px solid rgba(255, 215, 0, 0.35);
+			position: relative;
+			overflow: hidden;
+		}
+
+		/* Decorative pattern */
+		.zodiac-container::before {
+			content: '✦ ✦ ✦';
+			position: absolute;
+			top: 8px;
+			left: 50%;
+			transform: translateX(-50%);
+			font-size: 10px;
+			color: var(--color-goldenrod);
+			letter-spacing: 8px;
+			opacity: 0.5;
 		}
 
 		.zodiac-cn {
-			font-size: 3rem;
-			color: #FFD700;
-			text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+			font-family: var(--font-display);
+			font-size: 3.5rem;
+			color: var(--color-gold);
+			text-shadow: var(--shadow-text);
+			line-height: 1;
 		}
 
 		.zodiac-en {
-			font-size: 1.2rem;
-			color: #FFF8DC;
-			font-weight: bold;
+			font-family: var(--font-heading);
+			font-size: 1.3rem;
+			color: var(--color-cream);
+			font-weight: 500;
+			letter-spacing: 2px;
+			text-transform: capitalize;
 		}
 
+		/* ========== Activities (Yi/Ji) ========== */
 		.activities-list {
 			display: flex;
 			flex-wrap: wrap;
-			gap: 8px;
+			gap: 10px;
 		}
 
 		.activity-tag {
-			padding: 6px 14px;
-			border-radius: 20px;
+			padding: 8px 16px;
+			border-radius: 24px;
 			font-size: 0.95rem;
-			transition: all 0.3s ease;
+			transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+			cursor: default;
+			position: relative;
+			overflow: hidden;
 		}
-
 		.yi-tag {
-			background: rgba(255, 215, 0, 0.25);
-			color: #FFD700;
+			background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.15) 100%);
+			color: var(--color-gold);
 			border: 1px solid rgba(255, 215, 0, 0.4);
+			box-shadow: 0 2px 8px rgba(255, 215, 0, 0.1);
 		}
-
 		.yi-tag:hover {
-			background: rgba(255, 215, 0, 0.35);
-			transform: scale(1.05);
+			background: linear-gradient(135deg, rgba(255, 215, 0, 0.35) 0%, rgba(255, 215, 0, 0.2) 100%);
+			transform: translateY(-2px) scale(1.05);
+			box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 		}
-
 		.ji-tag {
-			background: rgba(139, 0, 0, 0.4);
-			color: #FFA07A;
-			border: 1px solid rgba(255, 160, 122, 0.3);
+			background: linear-gradient(135deg, rgba(92, 0, 0, 0.5) 0%, rgba(139, 0, 0, 0.3) 100%);
+			color: var(--color-light-salmon);
+			border: 1px solid rgba(255, 160, 122, 0.25);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 		}
-
 		.ji-tag:hover {
-			background: rgba(139, 0, 0, 0.5);
-			transform: scale(1.05);
+			background: linear-gradient(135deg, rgba(92, 0, 0, 0.7) 0%, rgba(139, 0, 0, 0.5) 100%);
+			transform: translateY(-2px) scale(1.05);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 		}
 
+		/* ========== Footer ========== */
 		.footer {
 			text-align: center;
-			margin-top: 30px;
-			padding-top: 20px;
+			margin-top: 36px;
+			padding-top: 24px;
 			border-top: 1px solid rgba(255, 215, 0, 0.2);
-			font-size: 0.8rem;
-			color: #DAA520;
-			opacity: 0.8;
+			font-size: 0.75rem;
+			color: var(--color-goldenrod);
+			opacity: 0.7;
+			font-family: var(--font-heading);
+			letter-spacing: 1px;
 		}
 
-		/* Mobile responsive */
-		@media (max-width: 480px) {
+		/* ========== Responsive Design ========== */
+		@media (max-width: 500px) {
+			body {
+				padding: 16px;
+			}
+
 			.container {
-				padding: 30px 20px;
+				padding: 36px 24px 32px;
+				border-radius: 20px;
 			}
 
 			.title {
-				font-size: 2rem;
+				font-size: 2.5rem;
+				letter-spacing: 6px;
+			}
+
+			.subtitle {
+				font-size: 1rem;
 				letter-spacing: 2px;
+			}
+
+			.value-large {
+				font-size: 1.7rem;
+			}
+
+			.zodiac-cn {
+				font-size: 3rem;
+			}
+
+			.zodiac-en {
+				font-size: 1.1rem;
+			}
+
+			.stem-branch {
+				padding: 8px 14px;
+			}
+
+			.container::before,
+			.container::after {
+				width: 40px;
+				height: 40px;
+			}
+		}
+
+		@media (max-width: 380px) {
+			.container {
+				padding: 30px 18px 28px;
+			}
+
+			.title {
+				font-size: 2.2rem;
+				letter-spacing: 4px;
+			}
+
+			.value {
+				font-size: 1.15rem;
 			}
 
 			.value-large {
 				font-size: 1.5rem;
 			}
 
-			.zodiac-cn {
-				font-size: 2.5rem;
+			.label {
+				font-size: 0.75rem;
+				letter-spacing: 2px;
+			}
+
+			.activity-tag {
+				padding: 6px 14px;
+				font-size: 0.85rem;
 			}
 
 			.stem-branch {
 				flex-direction: column;
-				gap: 5px;
+				gap: 6px;
 				text-align: center;
-			}
-		}
-
-		/* Small mobile */
-		@media (max-width: 375px) {
-			.container {
-				padding: 25px 15px;
+				padding: 12px 10px;
 			}
 
-			.title {
-				font-size: 1.8rem;
-			}
-
-			.value {
-				font-size: 1.1rem;
-			}
-
-			.value-large {
-				font-size: 1.3rem;
-			}
-
-			.label {
-				font-size: 0.8rem;
-			}
-
-			.activity-tag {
-				padding: 5px 12px;
-				font-size: 0.85rem;
+			.stem-branch-value {
+				font-size: 1rem;
 			}
 		}
 	</style>
@@ -334,7 +531,7 @@ export default {
 	<div class="container">
 		<header class="header">
 			<h1 class="title">农历</h1>
-			<p class="subtitle">Lunar Calendar</p>
+			<p class="subtitle">Traditional Chinese Calendar</p>
 		</header>
 
 		<section class="section">
@@ -348,7 +545,7 @@ export default {
 		<section class="section">
 			<h2 class="label">
 				农历
-				<span class="label-en">Lunar Date</span>
+				<span class="label-en">Traditional Date</span>
 			</h2>
 			<div class="value value-large">${lunarDate}</div>
 		</section>
@@ -391,7 +588,7 @@ export default {
 				<span class="label-en">Suitable For</span>
 			</h2>
 			<div class="activities-list">
-				${yi.map(activity => `<span class="activity-tag yi-tag">${activity}</span>`).join('')}
+				${yi.map((activity) => `<span class="activity-tag yi-tag">${activity}</span>`).join('')}
 			</div>
 		</section>
 
@@ -401,12 +598,12 @@ export default {
 				<span class="label-en">Avoid</span>
 			</h2>
 			<div class="activities-list">
-				${ji.map(activity => `<span class="activity-tag ji-tag">${activity}</span>`).join('')}
+				${ji.map((activity) => `<span class="activity-tag ji-tag">${activity}</span>`).join('')}
 			</div>
 		</section>
 
 		<footer class="footer">
-			© 2025 Lunar Calendar
+			© ${year} Traditional Chinese Calendar
 		</footer>
 	</div>
 
