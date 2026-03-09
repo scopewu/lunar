@@ -61,15 +61,15 @@ export default {
 		/* ========== CSS Variables ========== */
 		:root {
 			/* Colors */
-			--color-primary-red: #8B0000;
-			--color-bright-red: #DC143C;
-			--color-gold: #FFD700;
-			--color-cream: #FFF8DC;
-			--color-goldenrod: #DAA520;
-			--color-light-salmon: #FFA07A;
-			--color-deep-red: #5C0000;
-			--color-semi-gold: rgba(255, 215, 0, 0.15);
-			--color-semi-red: rgba(139, 0, 0, 0.85);
+			--color-primary-jade: #8BA9A9;
+			--color-bright-jade: #A8C5C0;
+			--color-soft-gold: #D4BC8E;
+			--color-porcelain: #FAF8F3;
+			--color-warm-sand: #E5D4BC;
+			--color-celadon: #C8DDD3;
+			--color-deep-ink: #5A6A6A;
+			--color-semi-jade: rgba(139, 169, 169, 0.12);
+			--color-semi-jade-dark: rgba(139, 169, 169, 0.75);
 
 			/* Typography */
 			--font-display: 'Ma Shan Zheng', cursive;
@@ -84,11 +84,11 @@ export default {
 			--space-xl: 32px;
 
 			/* Effects */
-			--shadow-card: 0 25px 70px rgba(0, 0, 0, 0.6),
-							 0 0 50px rgba(255, 215, 0, 0.25),
-							 inset 0 0 80px rgba(255, 215, 0, 0.08);
-			--shadow-text: 2px 2px 8px rgba(0, 0, 0, 0.4);
-			--shadow-subtle: 1px 1px 3px rgba(0, 0, 0, 0.25);
+			--shadow-card: 0 25px 70px rgba(0, 0, 0, 0.45),
+							 0 0 50px rgba(139, 169, 169, 0.15),
+							 inset 0 0 80px rgba(139, 169, 169, 0.05);
+			--shadow-text: 1px 1px 6px rgba(0, 0, 0, 0.25);
+			--shadow-subtle: 0px 0px 2px rgba(0, 0, 0, 0.12);
 		}
 
 		/* ========== Reset & Base ========== */
@@ -102,10 +102,10 @@ export default {
 			font-family: var(--font-body);
 			min-height: 100vh;
 			min-height: 100dvh;
-			background:
-				radial-gradient(circle at 20% 30%, rgba(220, 20, 60, 0.15) 0%, transparent 50%),
-				radial-gradient(circle at 80% 70%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
-				linear-gradient(135deg, var(--color-primary-red) 0%, var(--color-bright-red) 45%, var(--color-gold) 100%);
+background:
+			radial-gradient(circle at 20% 30%, rgba(168, 197, 192, 0.12) 0%, transparent 50%),
+			radial-gradient(circle at 80% 70%, rgba(200, 221, 211, 0.10) 0%, transparent 50%),
+			linear-gradient(135deg, var(--color-porcelain) 0%, var(--color-primary-jade) 45%, var(--color-celadon) 100%);
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -134,12 +134,12 @@ export default {
 			z-index: 2;
 			max-width: 540px;
 			width: 100%;
-			background: var(--color-semi-red);
+			background: var(--color-semi-jade-dark);
 			border-radius: 24px;
 			box-shadow: var(--shadow-card);
-			border: 2px solid rgba(255, 215, 0, 0.35);
+			border: 2px solid rgba(212, 188, 142, 0.28);
 			padding: 48px 36px 40px;
-			color: var(--color-cream);
+			color: var(--color-porcelain);
 			animation: containerFadeIn 1s cubic-bezier(0.22, 1, 0.36, 1);
 		}
 
@@ -150,7 +150,7 @@ export default {
 			position: absolute;
 			width: 60px;
 			height: 60px;
-			border: 2px solid var(--color-gold);
+			border: 2px solid var(--color-soft-gold);
 			opacity: 0.6;
 			pointer-events: none;
 		}
@@ -187,7 +187,7 @@ export default {
 			text-align: center;
 			margin-bottom: 36px;
 			padding-bottom: 24px;
-			border-bottom: 2px solid rgba(255, 215, 0, 0.25);
+			border-bottom: 2px solid rgba(212, 188, 142, 0.20);
 			position: relative;
 		}
 
@@ -199,15 +199,15 @@ export default {
 			left: 50%;
 			transform: translateX(-50%);
 			font-size: 14px;
-			color: var(--color-gold);
-			background: var(--color-primary-red);
+			color: var(--color-soft-gold);
+			background: var(--color-primary-jade);
 			padding: 0 10px;
 		}
 
 		.title {
 			font-family: var(--font-display);
 			font-size: 3rem;
-			color: var(--color-gold);
+			color: var(--color-soft-gold);
 			text-shadow: var(--shadow-text);
 			margin-bottom: 6px;
 			letter-spacing: 8px;
@@ -217,7 +217,7 @@ export default {
 		.subtitle {
 			font-family: var(--font-heading);
 			font-size: 1.1rem;
-			color: var(--color-cream);
+			color: var(--color-porcelain);
 			opacity: 0.85;
 			letter-spacing: 3px;
 			font-weight: 400;
@@ -250,7 +250,7 @@ export default {
 		/* ========== Labels ========== */
 		.label {
 			font-size: 0.8rem;
-			color: var(--color-gold);
+			color: var(--color-soft-gold);
 			margin-bottom: 10px;
 			text-transform: uppercase;
 			letter-spacing: 3px;
@@ -262,12 +262,12 @@ export default {
 
 		.label::before {
 			content: '—';
-			color: var(--color-goldenrod);
+			color: var(--color-warm-sand);
 			font-size: 0.9rem;
 		}
 		.label-en {
 			font-size: 0.7rem;
-			color: var(--color-goldenrod);
+			color: var(--color-warm-sand);
 			margin-left: 4px;
 			text-transform: none;
 			letter-spacing: 1.5px;
@@ -278,7 +278,7 @@ export default {
 		/* ========== Values ========== */
 		.value {
 			font-size: 1.35rem;
-			color: var(--color-cream);
+			color: var(--color-porcelain);
 			line-height: 1.7;
 			text-shadow: var(--shadow-subtle);
 		}
@@ -286,7 +286,7 @@ export default {
 		.value-large {
 			font-family: var(--font-heading);
 			font-size: 2rem;
-			color: var(--color-gold);
+			color: var(--color-soft-gold);
 			font-weight: 500;
 			letter-spacing: 3px;
 			text-shadow: var(--shadow-text);
@@ -304,9 +304,9 @@ export default {
 			justify-content: space-between;
 			align-items: center;
 			padding: 10px 16px;
-			background: linear-gradient(90deg, var(--color-semi-gold) 0%, rgba(255, 215, 0, 0.05) 100%);
+			background: linear-gradient(90deg, var(--color-semi-jade) 0%, rgba(92, 122, 122, 0.05) 100%);
 			border-radius: 10px;
-			border-left: 3px solid var(--color-gold);
+			border-left: 3px solid var(--color-soft-gold);
 			transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 			position: relative;
 			overflow: hidden;
@@ -320,13 +320,13 @@ export default {
 			left: -100%;
 			width: 100%;
 			height: 100%;
-			background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+			background: linear-gradient(90deg, transparent, rgba(212, 188, 142, 0.08), transparent);
 			transition: left 0.6s ease;
 		}
 		.stem-branch:hover {
-			background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.08) 100%);
+			background: linear-gradient(90deg, rgba(92, 122, 122, 0.15) 0%, rgba(92, 122, 122, 0.05) 100%);
 			transform: translateX(8px);
-			border-left-color: var(--color-goldenrod);
+			border-left-color: var(--color-warm-sand);
 		}
 
 		.stem-branch:hover::before {
@@ -334,13 +334,13 @@ export default {
 		}
 		.stem-branch-label {
 			font-size: 0.9rem;
-			color: var(--color-gold);
+			color: var(--color-soft-gold);
 			font-weight: 500;
 		}
 
 		.stem-branch-value {
 			font-size: 1.15rem;
-			color: var(--color-cream);
+			color: var(--color-porcelain);
 			font-weight: 600;
 			font-family: var(--font-heading);
 		}
@@ -353,9 +353,9 @@ export default {
 			gap: 18px;
 			padding: 20px;
 			background:
-				radial-gradient(circle at center, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.08) 100%);
+				radial-gradient(circle at center, rgba(200, 221, 211, 0.15) 0%, rgba(168, 197, 192, 0.08) 100%);
 			border-radius: 16px;
-			border: 2px solid rgba(255, 215, 0, 0.35);
+			border: 2px solid rgba(212, 188, 142, 0.25);
 			position: relative;
 			overflow: hidden;
 		}
@@ -368,7 +368,7 @@ export default {
 			left: 50%;
 			transform: translateX(-50%);
 			font-size: 10px;
-			color: var(--color-goldenrod);
+			color: var(--color-warm-sand);
 			letter-spacing: 8px;
 			opacity: 0.5;
 		}
@@ -376,7 +376,7 @@ export default {
 		.zodiac-cn {
 			font-family: var(--font-display);
 			font-size: 3.5rem;
-			color: var(--color-gold);
+			color: var(--color-soft-gold);
 			text-shadow: var(--shadow-text);
 			line-height: 1;
 		}
@@ -384,7 +384,7 @@ export default {
 		.zodiac-en {
 			font-family: var(--font-heading);
 			font-size: 1.3rem;
-			color: var(--color-cream);
+			color: var(--color-porcelain);
 			font-weight: 500;
 			letter-spacing: 2px;
 			text-transform: capitalize;
@@ -407,24 +407,24 @@ export default {
 			overflow: hidden;
 		}
 		.yi-tag {
-			background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.15) 100%);
-			color: var(--color-gold);
-			border: 1px solid rgba(255, 215, 0, 0.4);
-			box-shadow: 0 2px 8px rgba(255, 215, 0, 0.1);
+			background: linear-gradient(135deg, rgba(212, 188, 142, 0.18) 0%, rgba(212, 188, 142, 0.10) 100%);
+			color: var(--color-soft-gold);
+			border: 1px solid rgba(212, 188, 142, 0.30);
+			box-shadow: 0 2px 8px rgba(212, 188, 142, 0.08);
 		}
 		.yi-tag:hover {
-			background: linear-gradient(135deg, rgba(255, 215, 0, 0.35) 0%, rgba(255, 215, 0, 0.2) 100%);
+			background: linear-gradient(135deg, rgba(212, 188, 142, 0.25) 0%, rgba(212, 188, 142, 0.12) 100%);
 			transform: translateY(-2px) scale(1.05);
-			box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+			box-shadow: 0 4px 12px rgba(212, 188, 142, 0.15);
 		}
 		.ji-tag {
-			background: linear-gradient(135deg, rgba(92, 0, 0, 0.5) 0%, rgba(139, 0, 0, 0.3) 100%);
-			color: var(--color-light-salmon);
-			border: 1px solid rgba(255, 160, 122, 0.25);
+			background: linear-gradient(135deg, rgba(61, 74, 74, 0.45) 0%, rgba(92, 122, 122, 0.25) 100%);
+			color: var(--color-celadon);
+			border: 1px solid rgba(200, 221, 211, 0.20);
 			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 		}
 		.ji-tag:hover {
-			background: linear-gradient(135deg, rgba(92, 0, 0, 0.7) 0%, rgba(139, 0, 0, 0.5) 100%);
+			background: linear-gradient(135deg, rgba(61, 74, 74, 0.60) 0%, rgba(92, 122, 122, 0.35) 100%);
 			transform: translateY(-2px) scale(1.05);
 			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 		}
@@ -434,9 +434,9 @@ export default {
 			text-align: center;
 			margin-top: 36px;
 			padding-top: 24px;
-			border-top: 1px solid rgba(255, 215, 0, 0.2);
+			border-top: 1px solid rgba(212, 188, 142, 0.15);
 			font-size: 0.75rem;
-			color: var(--color-goldenrod);
+			color: var(--color-warm-sand);
 			opacity: 0.7;
 			font-family: var(--font-heading);
 			letter-spacing: 1px;
