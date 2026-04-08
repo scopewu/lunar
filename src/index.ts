@@ -1,9 +1,8 @@
 import { Solar } from 'lunar-javascript';
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		const solar = Solar.fromDate(new Date());
-		const lunar = solar.getLunar();
+export function generateHtml(date?: Date): string {
+	const solar = Solar.fromDate(date ?? new Date());
+	const lunar = solar.getLunar();
 
 		const gregorianDate = solar.toString();
 		const lunarDate = lunar.toString();
@@ -388,6 +387,39 @@ export default {
 			}
 		}
 
+		/* ========== Dark Mode ========== */
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--color-bg: #111110;
+				--color-card: #1C1C1A;
+				--color-text-primary: #EAEAE6;
+				--color-text-secondary: #9CA3AF;
+				--color-accent: #7FADA6;
+				--color-accent-light: #232D2B;
+				--color-gold: #D4A878;
+				--color-border: #2E2E2A;
+				--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2),
+								 0 8px 24px rgba(0, 0, 0, 0.25);
+			}
+
+			.stem-branch:hover {
+				background: #2B3A36;
+			}
+
+			.yi-tag:hover {
+				background: #2B3A36;
+			}
+
+			.ji-tag {
+				background: #242422;
+				border-color: var(--color-border);
+			}
+
+			.ji-tag:hover {
+				background: #2E2E2A;
+			}
+		}
+
 		/* ========== Accessibility: Reduced Motion ========== */
 		@media (prefers-reduced-motion: reduce) {
 			*,
@@ -497,6 +529,16 @@ export default {
 	</script>
 </body>
 </html>`;
+
+	return html;
+}
+
+export default {
+	async fetch(request, env, ctx): Promise<Response> {
+		const url = new URL(request.url);
+		const dateParam = url.searchParams.get('date');
+		const date = dateParam ? new Date(dateParam) : undefined;
+		const html = generateHtml(date);
 
 		return new Response(html, {
 			headers: {
