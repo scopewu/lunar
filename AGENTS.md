@@ -1,158 +1,57 @@
 # lunar-calendar - AGENTS.md
 
-## Project Overview
+## What This Is
 
-This is a Cloudflare Worker that displays the Traditional Chinese Calendar (农历) with traditional calendar information including stems & branches (天干地支), zodiac (生肖), and daily activities (宜忌).
+Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农历) page with stems & branches (天干地支), zodiac (生肖), solar terms (节气), and daily activities (宜忌). Deployed at `https://lunar.tie.pub`.
 
-## Tech Stack
+## Architecture
 
-- **Runtime**: Cloudflare Workers with Node.js compatibility
-- **Language**: TypeScript (ES2024 target)
-- **Main Dependency**: `lunar-javascript` - Lunar calendar library
-- **Testing**: Vitest with Cloudflare Workers pool
-- **Deployment**: Wrangler CLI
+- **`src/index.ts`** — the entire app. Exports `generateHtml(date?)` and the default Worker handler. HTML, CSS, and JS are inlined in a template literal.
+- **`src/lunar-javascript.d.ts`** — manual type declarations. The `lunar-javascript` library ships no TS types; this file is the single source of truth for its API surface. Update it if you use new library methods.
+- **`test/index.spec.ts`** — tests use `cloudflare:test` helpers (`env`, `createExecutionContext`, `SELF`) with a fixed date (`2026-04-03`) for deterministic assertions.
+- **`test/env.d.ts`** + **`test/tsconfig.json`** — separate tsconfig for tests extending root config.
+- **`test.mjs`** — throwaway 1-liner for quick manual checks. Not part of the test suite.
 
-## Development Commands
+## Commands
 
 | Command | Purpose |
 |---------|---------|
-| `npm run dev` or `npm start` | Local development server with Wrangler |
+| `npm run dev` | Local dev server (Wrangler, default port 8787) |
+| `npm test` | Run Vitest with Cloudflare Workers pool |
+| `npx vitest run test/index.spec.ts` | Run a single test file |
 | `npm run deploy` | Deploy to Cloudflare Workers |
-| `npm test` | Run Vitest test suite |
-| `npm run cf-typegen` | Generate TypeScript types from `wrangler.jsonc` bindings |
+| `npm run cf-typegen` | Regenerate `worker-configuration.d.ts` after `wrangler.jsonc` changes |
 
-**Note**: Run `npm run cf-typegen` after changing bindings in `wrangler.jsonc` to keep types in sync.
+## Key Gotchas
 
-## Code Style Guidelines
+- **`lunar-javascript` has no TS types.** All type info lives in `src/lunar-javascript.d.ts`. When adding new library API calls, update that file first.
+- **`generateHtml()` is exported** specifically for testability. The Worker handler calls it; tests call it directly to assert HTML content without spinning up the Worker.
+- **`?date=` query parameter** on the Worker URL accepts a date string (e.g. `?date=2025-02-12`) to render a specific day. Useful for manual testing.
+- **No bindings configured.** `Env` is currently empty (`worker-configuration.d.ts` → `Cloudflare.Env {}`).
+- **`@cloudflare/workerd-darwin-64`** is an explicit dependency (platform-specific workerd binary).
 
-### Formatting (Prettier + EditorConfig)
+## Code Style
 
-- **Indentation**: Tabs (NOT spaces)
-- **Quotes**: Single quotes for strings
-- **Semicolons**: Required
-- **Line width**: 140 characters
-- **Line endings**: LF (Unix-style)
-- **Charset**: UTF-8
-- **Whitespace**: Trim trailing whitespace
-- **Files**: Insert final newline
+Enforced by Prettier + EditorConfig:
 
-### Naming Conventions
+- **Tabs** for indentation (not spaces)
+- **Single quotes**, semicolons required
+- **140 char** print width
+- **LF** line endings, UTF-8, trailing whitespace trimmed, final newline inserted
 
-```typescript
-// Variables and functions: camelCase
-const gregorianDate = solar.toString();
-const lunarDate = lunar.toString();
-
-// Type parameters: PascalCase
-export interface Env { }
-
-// Constants: UPPER_SNAKE_CASE or camelCase depending on scope
-```
-
-### Import Patterns
-
-```typescript
-// Named imports from external packages
-import { Solar } from 'lunar-javascript';
-
-// Default export for Workers
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		// ...
-	},
-} satisfies ExportedHandler<Env>;
-```
-
-### TypeScript Configuration
-
-- Target: ES2024
-- Module: ES2022
-- Strict mode: **enabled**
-- Module resolution: Bundler
-- All `.d.ts` files excluded from type checking (skipLibCheck)
-
-### Error Handling
-
-```typescript
-// Workers return Response objects for success
-return new Response(html, {
-	headers: { 'content-type': 'text/html;charset=UTF-8' },
-});
-
-// For errors, return appropriate HTTP status codes
-return new Response('Error message', { status: 500 });
-```
-
-### HTML/Template Literals
-
-- Use template literals for HTML generation
-- Indent template literal content with tabs (matching codebase style)
-- Use semantic HTML5 elements
-- Include proper meta tags for SEO
+YAML files (`.yml`) use spaces per EditorConfig override.
 
 ## Testing
 
-- Test files: Located in `test/` directory
-- Test runner: Vitest with `@cloudflare/vitest-pool-workers`
-- Configuration: `vitest.config.mts`
+- Runner: Vitest + `@cloudflare/vitest-pool-workers` (pool: `workers`)
+- Config: `vitest.config.mts` — uses `cloudflareTest()` plugin with `wrangler.jsonc` path
+- Tests use a **fixed date** for deterministic output — check the `FIXED_DATE` constant when writing new assertions
+- Two test styles: unit (`worker.fetch()` with `createExecutionContext`) and integration (`SELF.fetch()`)
 
-**To run a single test**:
-```bash
-npx vitest run path/to/test.spec.ts
-```
+## Wrangler Config (`wrangler.jsonc`)
 
-## Cloudflare Workers Specifics
-
-### Wrangler Configuration
-
-- Main entry: `src/index.ts`
+- Main: `src/index.ts`
 - Compatibility date: `2026-02-10`
-- Node.js compatibility: enabled via `nodejs_compat` flag
-- Route: `lunar.tie.pub/*`
+- Compatibility flag: `nodejs_compat`
+- Route: `lunar.tie.pub/*` (zone: `tie.pub`)
 - Observability: enabled
-
-### Type Generation
-
-After modifying `wrangler.jsonc`, always regenerate types:
-```bash
-npm run cf-typegen
-```
-
-This updates `worker-configuration.d.ts` with correct binding types.
-
-### Environment & Bindings
-
-- Check `wrangler.jsonc` for configured bindings (KV, R2, D1, Durable Objects, etc.)
-- Use `worker-configuration.d.ts` for type-safe binding access
-
-## Deployment Route
-
-Deployed at: `https://lunar.tie.pub`
-
----
-
-## Cloudflare Workers Documentation
-
-**STOP.** Your knowledge of Cloudflare Workers APIs and limits may be outdated. Always retrieve current documentation before any Workers, KV, R2, D1, Durable Objects, Queues, Vectorize, AI, or Agents SDK task.
-
-### Official Docs
-
-- https://developers.cloudflare.com/workers/
-- MCP: `https://docs.mcp.cloudflare.com/mcp`
-
-### Limits & Quotas
-
-Always retrieve from product's `/platform/limits/` page: https://developers.cloudflare.com/workers/platform/limits/
-
-### Node.js Compatibility
-
-https://developers.cloudflare.com/workers/runtime-apis/nodejs/
-
-### Common Errors
-
-- **Error 1102** (CPU/Memory exceeded): Check limits at `/workers/platform/limits/`
-- **All errors**: https://developers.cloudflare.com/workers/observability/errors/
-
-### Product References
-
-API references and limits: `/kv/` · `/r2/` · `/d1/` · `/durable-objects/` · `/queues/` · `/vectorize/` · `/workers-ai/` · `/agents/`
