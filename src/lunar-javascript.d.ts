@@ -5,6 +5,12 @@ declare module 'lunar-javascript' {
 		toString(): string;
 	}
 
+	export interface JieQi {
+		getName(): string;
+		getSolar(): Solar;
+		toString(): string;
+	}
+
 	export class Lunar {
 		toString(): string;
 		getYearInGanZhi(): string;
@@ -13,5 +19,9 @@ declare module 'lunar-javascript' {
 		getYearShengXiao(): string;
 		getDayYi(): string[];
 		getDayJi(): string[];
+		getJieQi(): string;
+		getNextJieQi(wholeDay?: boolean): JieQi | null;
+		getMonthInChinese(): string;
+		getDayInChinese(): string;
 	}
 }

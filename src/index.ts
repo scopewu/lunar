@@ -4,18 +4,25 @@ export function generateHtml(date?: Date): string {
 	const solar = Solar.fromDate(date ?? new Date());
 	const lunar = solar.getLunar();
 
-		const gregorianDate = solar.toString();
-		const lunarDate = lunar.toString();
-		const yearGanZhi = lunar.getYearInGanZhi();
-		const monthGanZhi = lunar.getMonthInGanZhi();
-		const dayGanZhi = lunar.getDayInGanZhi();
-		const zodiac = lunar.getYearShengXiao();
-		const yi = lunar.getDayYi();
-		const ji = lunar.getDayJi();
+	const gregorianDate = solar.toString();
+	const lunarDate = lunar.toString();
+	const yearGanZhi = lunar.getYearInGanZhi();
+	const monthGanZhi = lunar.getMonthInGanZhi();
+	const dayGanZhi = lunar.getDayInGanZhi();
+	const zodiac = lunar.getYearShengXiao();
+	const yi = lunar.getDayYi();
+	const ji = lunar.getDayJi();
+	const jieQi = lunar.getJieQi();
+	const nextJieQi = lunar.getNextJieQi(true);
+	const nextJieQiName = nextJieQi?.getName() ?? '';
+	const nextJieQiSolar = nextJieQi?.getSolar() ?? null;
+	const nextJieQiDate = nextJieQiSolar?.toString() ?? '';
+	const nextJieQiLunar = nextJieQiSolar?.getLunar() ?? null;
+	const nextJieQiLunarDate = nextJieQiLunar ? `${nextJieQiLunar.getMonthInChinese()}月${nextJieQiLunar.getDayInChinese()}` : '';
 
-		const year = new Date().getFullYear();
+	const year = new Date().getFullYear();
 
-		const html = `<!DOCTYPE html>
+	const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 	<meta charset="UTF-8">
@@ -484,6 +491,18 @@ export function generateHtml(date?: Date): string {
 			<div class="zodiac-container">
 				<span class="zodiac-cn">${zodiac}</span>
 				<span class="zodiac-en">${zodiac}</span>
+			</div>
+		</section>
+
+		<section class="section">
+			<h2 class="label">
+				节气
+				<span class="label-en">Solar Term</span>
+			</h2>
+			<div class="value">
+				${jieQi ? `今日：${jieQi}` : ''}
+				${jieQi && nextJieQiName ? '<br>' : ''}
+				${nextJieQiName ? `下期：${nextJieQiName}（${nextJieQiDate} · ${nextJieQiLunarDate}）` : ''}
 			</div>
 		</section>
 
