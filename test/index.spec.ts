@@ -36,7 +36,8 @@ describe('generateHtml', () => {
 		expect(html).toContain('<script type="application/ld+json">');
 		expect(html).toContain('"@context": "https://schema.org"');
 		expect(html).toContain('"@type": "WebPage"');
-		expect(html).toContain('"datePublished": "2026-04-03"');
+		expect(html).toContain('"datePublished": "2026-05-05T05:25:11.284Z"');
+		expect(html).toContain('"dateModified": "2026-04-03"');
 	});
 
 	it('contains CSS styles', () => {
@@ -92,6 +93,14 @@ describe('generateHtml', () => {
 		// Yi/Ji sections
 		expect(html).toContain('yi-tag');
 		expect(html).toContain('ji-tag');
+	});
+
+	it('render jieQi for fixed date', () => {
+		const html = generateHtml(new Date('2026-05-05T12:00:00Z'));
+		console.log(html)
+
+		expect(html).toContain('今日：立夏');
+		expect(html).toContain('下期：小满（2026-05-21 · 四月初五）');
 	});
 
 	it('contains midnight refresh script', () => {
