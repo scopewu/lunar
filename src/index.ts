@@ -43,8 +43,6 @@ export function generateHtml(date?: Date): string {
 	<meta property="og:url" content="https://lunar.tie.pub">
 	<meta property="og:locale" content="zh_CN">
 	<meta name="twitter:card" content="summary">
-	<meta name="twitter:title" content="农历 ${lunarDate} | Traditional Chinese Calendar">
-	<meta name="twitter:description" content="查看今日农历、天干地支、生肖及宜忌信息">
 	<link rel="canonical" href="https://lunar.tie.pub">
 	<script type="application/ld+json">
 	{
@@ -53,7 +51,8 @@ export function generateHtml(date?: Date): string {
 	  "name": "农历 ${lunarDate} - Traditional Chinese Calendar",
 	  "description": "查看今日农历、天干地支、生肖及宜忌等传统文化信息",
  	  "url": "https://lunar.tie.pub",
-	  "datePublished": "${gregorianDate}",
+	  "datePublished": "2026-05-05T05:25:11.284Z",
+	  "dateModified": "${gregorianDate}",
 	  "inLanguage": "zh-CN",
 	  "author": {
 	    "@type": "Person",
