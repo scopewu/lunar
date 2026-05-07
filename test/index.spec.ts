@@ -97,7 +97,6 @@ describe('generateHtml', () => {
 
 	it('render jieQi for fixed date', () => {
 		const html = generateHtml(new Date('2026-05-05T12:00:00Z'));
-		console.log(html)
 
 		expect(html).toContain('今日：立夏');
 		expect(html).toContain('下期：小满（2026-05-21 · 四月初五）');
@@ -114,6 +113,23 @@ describe('generateHtml', () => {
 		const html = generateHtml(FIXED_DATE);
 
 		expect(html).toContain('© 2026 Traditional Chinese Calendar');
+	});
+
+	it('contains footer links to GitHub and author', () => {
+		const html = generateHtml(FIXED_DATE);
+
+		expect(html).toContain('https://github.com/scopewu/lunar');
+		expect(html).toContain('https://tie.pub');
+		expect(html).toContain('GitHub');
+		expect(html).toContain('吴文俊');
+	});
+
+	it('contains inlined favicon and apple-touch-icon', () => {
+		const html = generateHtml(FIXED_DATE);
+
+		expect(html).toContain('<link rel="icon"');
+		expect(html).toContain('<link rel="apple-touch-icon"');
+		expect(html).toContain('data:image/png;base64,');
 	});
 });
 
