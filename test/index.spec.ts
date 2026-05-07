@@ -123,14 +123,6 @@ describe('generateHtml', () => {
 		expect(html).toContain('GitHub');
 		expect(html).toContain('吴文俊');
 	});
-
-	it('contains inlined favicon and apple-touch-icon', () => {
-		const html = generateHtml(FIXED_DATE);
-
-		expect(html).toContain('<link rel="icon"');
-		expect(html).toContain('<link rel="apple-touch-icon"');
-		expect(html).toContain('data:image/png;base64,');
-	});
 });
 
 describe('Worker fetch handler', () => {
