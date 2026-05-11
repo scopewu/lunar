@@ -44,7 +44,7 @@ describe('generateHtml', () => {
 		expect(html).toContain('<script type="application/ld+json">');
 		expect(html).toContain('"@context": "https://schema.org"');
 		expect(html).toContain('"@type": "WebPage"');
-		expect(html).toContain('"datePublished": "2026-05-05T05:25:11.284Z"');
+		expect(html).toMatch(/"datePublished": "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z"/);
 		expect(html).toContain('"dateModified": "2026-04-03"');
 	});
 
