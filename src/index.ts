@@ -33,7 +33,6 @@ export function generateHtml(date?: Date): string {
 	<meta name="author" content="吴文俊（Wú Wénjùn）">
 	<link rel="author" href="https://tie.pub/me/">
 	<meta name="robots" content="index, follow">
-	<meta name="theme-color" content="#5B8C85">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
@@ -44,6 +43,7 @@ export function generateHtml(date?: Date): string {
 	<meta property="og:locale" content="zh_CN">
 	<meta name="twitter:card" content="summary">
 	<link rel="canonical" href="https://lunar.tie.pub">
+	<link rel="sitemap" type="application/xml" href="https://lunar.tie.pub/sitemap.xml">
 	<script type="application/ld+json">
 	{
 	  "@context": "https://schema.org",
@@ -610,6 +610,35 @@ export function generateHtml(date?: Date): string {
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const url = new URL(request.url);
+
+		if (url.pathname === '/robots.txt') {
+			return new Response('User-agent: *\nAllow: /\n', {
+				headers: {
+					'content-type': 'text/plain;charset=UTF-8',
+				},
+			});
+		}
+
+		if (url.pathname === '/favicon.ico') {
+			return new Response(null, { status: 404 });
+		}
+
+		if (url.pathname === '/sitemap.xml') {
+			const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>${url.protocol}//${url.host}/</loc>
+		<changefreq>daily</changefreq>
+		<priority>1.0</priority>
+	</url>
+</urlset>`;
+			return new Response(sitemap, {
+				headers: {
+					'content-type': 'application/xml;charset=UTF-8',
+				},
+			});
+		}
+
 		const dateParam = url.searchParams.get('date');
 		const date = dateParam ? new Date(dateParam) : undefined;
 		const html = generateHtml(date);
