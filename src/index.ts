@@ -45,6 +45,9 @@ export function generateHtml(date?: Date): string {
 	<meta name="twitter:card" content="summary">
 	<link rel="canonical" href="https://lunar.tie.pub">
 	<link rel="sitemap" type="application/xml" href="https://lunar.tie.pub/sitemap.xml">
+	<link rel="apple-touch-icon" sizes="180x180" href="https://s.tie.pub/lunar-icons/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="https://s.tie.pub/lunar-icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="https://s.tie.pub/lunar-icons/favicon-16x16.png">
 	<script type="application/ld+json">
 	{
 		"@context": "https://schema.org",
@@ -645,10 +648,14 @@ export default {
 		const date = dateParam ? new Date(dateParam) : undefined;
 		const html = generateHtml(date);
 
-		return new Response(html, {
-			headers: {
-				'content-type': 'text/html;charset=UTF-8',
-			},
-		});
+		if (url.pathname === '/') {
+			return new Response(html, {
+				headers: {
+					'content-type': 'text/html;charset=UTF-8',
+				},
+			});
+		}
+
+		return new Response(null, { status: 404 });
 	},
 } satisfies ExportedHandler<Env>;
