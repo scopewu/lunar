@@ -5,7 +5,8 @@ export function generateHtml(date?: Date): string {
 	const lunar = solar.getLunar();
 
 	const gregorianDate = solar.toString();
-	const lunarDate = lunar.toString();
+	// const lunarDate = lunar.toString();
+	const lunarDate = `${lunar.getYearInGanZhi()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
 	const yearGanZhi = lunar.getYearInGanZhi();
 	const monthGanZhi = lunar.getMonthInGanZhi();
 	const dayGanZhi = lunar.getDayInGanZhi();
@@ -46,19 +47,20 @@ export function generateHtml(date?: Date): string {
 	<link rel="sitemap" type="application/xml" href="https://lunar.tie.pub/sitemap.xml">
 	<script type="application/ld+json">
 	{
-	  "@context": "https://schema.org",
-	  "@type": "WebPage",
-	  "name": "农历 ${lunarDate} - Traditional Chinese Calendar",
-	  "description": "查看今日农历、天干地支、生肖及宜忌等传统文化信息",
- 	  "url": "https://lunar.tie.pub",
-	  "datePublished": "2026-05-05T05:25:11.284Z",
-	  "dateModified": "${gregorianDate}",
-	  "inLanguage": "zh-CN",
-	  "author": {
-	    "@type": "Person",
-	    "name": "吴文俊（Wú Wénjùn）",
-	    "url": "https://tie.pub/me/"
-	  }
+		"@context": "https://schema.org",
+		"@type": "WebPage",
+		"name": "农历 ${lunarDate} - Traditional Chinese Calendar",
+		"description": "查看今日农历、天干地支、生肖及宜忌等传统文化信息",
+		"url": "https://lunar.tie.pub",
+		"datePublished": "2026-05-05T05:25:11.284Z",
+		"dateModified": "${gregorianDate}",
+		"inLanguage": "zh-CN",
+		"author": {
+			"@type": "Person",
+			"name": "吴文俊",
+			"alternateName": "Wú Wénjùn",
+			"url": "https://tie.pub/me/"
+		}
 	}
 	</script>
 
@@ -258,7 +260,7 @@ export function generateHtml(date?: Date): string {
 
 		.zodiac-cn {
 			font-family: var(--font-display);
-			font-size: 3.25rem;
+			font-size: 2.25rem;
 			color: var(--color-accent);
 			line-height: 1;
 		}
