@@ -612,6 +612,234 @@ export function generateHtml(date?: Date): string {
 	return html;
 }
 
+export function generate404Html(): string {
+	const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>404 页面未找到 | Traditional Chinese Calendar</title>
+	<meta name="description" content="您访问的页面不存在。The page you are looking for does not exist.">
+	<meta name="robots" content="noindex, nofollow">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+	<link rel="apple-touch-icon" sizes="180x180" href="https://s.tie.pub/lunar-icons/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="https://s.tie.pub/lunar-icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="https://s.tie.pub/lunar-icons/favicon-16x16.png">
+
+	<style>
+		:root {
+			--color-bg: #FAFAF7;
+			--color-card: #FFFFFF;
+			--color-text-primary: #1A1A1A;
+			--color-text-secondary: #6B7280;
+			--color-accent: #5B8C85;
+			--color-accent-light: #E8F0EE;
+			--color-border: #E5E5E0;
+
+			--font-display: 'Ma Shan Zheng', cursive;
+			--font-heading: 'ZCOOL XiaoWei', serif;
+			--font-body: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+
+			--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04),
+							 0 8px 24px rgba(0, 0, 0, 0.04);
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: var(--font-body);
+			min-height: 100vh;
+			min-height: 100dvh;
+			background-color: var(--color-bg);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+			color: var(--color-text-primary);
+			line-height: 1.6;
+		}
+
+		.container {
+			position: relative;
+			max-width: 520px;
+			width: 100%;
+			background: var(--color-card);
+			border-radius: 16px;
+			box-shadow: var(--shadow-card);
+			border: 1px solid var(--color-border);
+			padding: 56px 40px 48px;
+			text-align: center;
+			animation: fadeIn 0.6s ease-out;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.error-code {
+			font-family: var(--font-display);
+			font-size: 6rem;
+			color: var(--color-accent);
+			line-height: 1;
+			letter-spacing: 4px;
+			margin-bottom: 16px;
+		}
+
+		.subtitle {
+			font-family: var(--font-heading);
+			font-size: 1.05rem;
+			color: var(--color-text-secondary);
+			letter-spacing: 2px;
+			font-weight: 400;
+			margin-bottom: 28px;
+			padding-bottom: 28px;
+			border-bottom: 1px solid var(--color-border);
+		}
+
+		.message {
+			font-size: 0.95rem;
+			color: var(--color-text-secondary);
+			line-height: 1.8;
+			margin-bottom: 36px;
+		}
+
+		.message p + p {
+			margin-top: 4px;
+			opacity: 0.8;
+			font-size: 0.85rem;
+		}
+
+		.home-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 32px;
+			background: var(--color-accent);
+			color: #FFFFFF;
+			text-decoration: none;
+			border-radius: 24px;
+			font-family: var(--font-heading);
+			font-size: 1rem;
+			letter-spacing: 1.5px;
+			transition: background-color 0.2s ease, transform 0.2s ease;
+		}
+
+		.home-link:hover {
+			background: #4A7770;
+			transform: translateY(-1px);
+		}
+
+		.home-link svg {
+			width: 16px;
+			height: 16px;
+			fill: none;
+			stroke: currentColor;
+			stroke-width: 2;
+			stroke-linecap: round;
+			stroke-linejoin: round;
+		}
+
+		@media (max-width: 500px) {
+			body {
+				padding: 16px;
+			}
+
+			.container {
+				padding: 44px 28px 40px;
+				border-radius: 14px;
+			}
+
+			.error-code {
+				font-size: 4.5rem;
+			}
+
+			.subtitle {
+				font-size: 0.95rem;
+				letter-spacing: 1.5px;
+			}
+		}
+
+		@media (max-width: 380px) {
+			.container {
+				padding: 36px 20px 36px;
+			}
+
+			.error-code {
+				font-size: 3.75rem;
+			}
+
+			.home-link {
+				padding: 11px 26px;
+				font-size: 0.95rem;
+			}
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--color-bg: #111110;
+				--color-card: #1C1C1A;
+				--color-text-primary: #EAEAE6;
+				--color-text-secondary: #9CA3AF;
+				--color-accent: #7FADA6;
+				--color-accent-light: #232D2B;
+				--color-border: #2E2E2A;
+				--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2),
+								 0 8px 24px rgba(0, 0, 0, 0.25);
+			}
+
+			.home-link {
+				background: var(--color-accent);
+				color: #111110;
+			}
+
+			.home-link:hover {
+				background: #94BFB8;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*,
+			*::before,
+			*::after {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="error-code">404</div>
+		<p class="subtitle">页面未找到 · Page Not Found</p>
+		<div class="message">
+			<p>您访问的页面不存在。</p>
+			<p>The page you are looking for does not exist.</p>
+		</div>
+		<a class="home-link" href="/" aria-label="返回首页 Back to Home">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/><path d="M9 21v-6h6v6"/></svg>
+			返回首页 · Back to Home
+		</a>
+	</div>
+</body>
+</html>`;
+
+	return html;
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const url = new URL(request.url);
@@ -656,6 +884,11 @@ export default {
 			});
 		}
 
-		return new Response(null, { status: 404 });
+		return new Response(generate404Html(), {
+			status: 404,
+			headers: {
+				'content-type': 'text/html;charset=UTF-8',
+			},
+		});
 	},
 } satisfies ExportedHandler<Env>;
