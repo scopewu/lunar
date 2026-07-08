@@ -36,12 +36,16 @@ export function generateHtml(date?: Date): string {
 	<meta name="robots" content="index, follow">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 	<meta property="og:title" content="农历 ${lunarDate} | Traditional Chinese Calendar">
 	<meta property="og:description" content="查看今日农历、天干地支、生肖及宜忌信息">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="https://lunar.tie.pub">
 	<meta property="og:locale" content="zh_CN">
+	<meta property="og:locale:alternate" content="en_US">
+	<meta property="og:site_name" content="农历">
+	<meta property="og:image" content="https://s.tie.pub/lunar-icons/android-chrome-512x512.png" />
+	<meta property="og:image:alt" content="农历, traditional chinese calendar" />
 	<meta name="twitter:card" content="summary">
 	<link rel="canonical" href="https://lunar.tie.pub">
 	<link rel="sitemap" type="application/xml" href="https://lunar.tie.pub/sitemap.xml">
@@ -549,9 +553,8 @@ export function generateHtml(date?: Date): string {
 				<span class="label-en">Solar Term</span>
 			</h2>
 			<div class="value">
-				${jieQi ? `今日：${jieQi}` : ''}
-				${jieQi && nextJieQiName ? '<br>' : ''}
-				${nextJieQiName ? `下期：${nextJieQiName}（${nextJieQiDate} · ${nextJieQiLunarDate}）` : ''}
+				${jieQi ? `<p>今日：${jieQi}</p>` : ''}
+				${nextJieQiName ? `<p>下期：${nextJieQiName}（${nextJieQiDate} · ${nextJieQiLunarDate}）</p>` : ''}
 			</div>
 		</section>
 
@@ -623,7 +626,7 @@ export function generate404Html(): string {
 	<meta name="robots" content="noindex, nofollow">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 	<link rel="apple-touch-icon" sizes="180x180" href="https://s.tie.pub/lunar-icons/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="https://s.tie.pub/lunar-icons/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="https://s.tie.pub/lunar-icons/favicon-16x16.png">
