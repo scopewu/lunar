@@ -90,4 +90,4 @@ MIT License - Copyright (c) 2026 scope.wu
 
 ## Author
 
-吴文俊（Wú Wénjùn） - [tie.pub/me](https://tie.pub/me/)
+吴文俊 (Wú Wénjùn) - [tie.pub/me](https://tie.pub/me/)

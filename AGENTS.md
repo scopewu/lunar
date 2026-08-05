@@ -7,6 +7,7 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 ## Architecture
 
 - **`src/index.ts`** — the entire app. Exports `generateHtml(date?: Date): string` and the default Worker handler object. HTML, CSS, and client JS are all inlined in template literals.
+- **`src/favicon.ts`** — base64-inlined `favicon.ico` (generated file, 20 KB single-line string; regenerate from `https://s.tie.pub/lunar-icons/favicon.ico` if the icon changes). Served by the `/favicon.ico` route.
 - **`src/lunar-javascript.d.ts`** — manual type declarations (27 lines). The `lunar-javascript` library ships no TS types; this file is the single source of truth for its API surface. **Update it first** when using any new library method.
 - **`test/index.spec.ts`** — tests import from `cloudflare:test` (`env`, `createExecutionContext`, `waitOnExecutionContext`, `SELF`) and from `../src/index`. Uses `FIXED_DATE = new Date('2026-04-03T12:00:00Z')` for deterministic assertions.
 - **`test/env.d.ts`** + **`test/tsconfig.json`** — tests have their own tsconfig (extends root, includes `@cloudflare/vitest-pool-workers` types). Root `tsconfig.json` **excludes `test/`**, so don't run a root typecheck expecting it to cover tests.
@@ -32,7 +33,7 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 - **`generateHtml()` is exported** specifically for testability. The Worker handler calls it; tests call it directly. Keep it pure (no `Request`/`Response`/`env` access) — the handler owns HTTP concerns.
 - **Worker routing** (in `src/index.ts`, default `fetch`):
 	- `GET /` → calendar HTML (`?date=YYYY-MM-DD` overrides today's date; used by tests)
-	- `GET /robots.txt`, `/favicon.ico` (404), `/sitemap.xml` → static responses
+	- `GET /robots.txt`, `/sitemap.xml` → static responses; `GET /favicon.ico` → inlined icon from `src/favicon.ts` (runtime fetch of `s.tie.pub` is impossible: same-zone subrequests redirect-loop)
 	- any other path → `generate404Html()` with status 404
 - **No bindings configured.** `Env` is empty (`worker-configuration.d.ts` → `interface __BaseEnv_Env {}`). Don't assume KV/D1/R1/Durable Objects exist.
 - **`@cloudflare/workerd-darwin-64` is an explicit dependency** (platform-specific workerd binary pinned for macOS). On Linux/Windows the equivalent platform package must be substituted.

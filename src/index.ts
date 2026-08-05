@@ -1,4 +1,7 @@
 import { Solar } from 'lunar-javascript';
+import { FAVICON_ICO_BASE64 } from './favicon';
+
+const FAVICON_ICO = Uint8Array.from(atob(FAVICON_ICO_BASE64), (c) => c.charCodeAt(0));
 
 export function generateHtml(date?: Date): string {
 	const solar = Solar.fromDate(date ?? new Date());
@@ -856,7 +859,12 @@ export default {
 		}
 
 		if (url.pathname === '/favicon.ico') {
-			return new Response(null, { status: 404 });
+			return new Response(FAVICON_ICO, {
+				headers: {
+					'content-type': 'image/x-icon',
+					'cache-control': 'public, max-age=86400',
+				},
+			});
 		}
 
 		if (url.pathname === '/sitemap.xml') {

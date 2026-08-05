@@ -10,14 +10,14 @@
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.19.1",
+		"@cloudflare/vitest-pool-workers": "^0.20.1",
 		"@types/node": "^26.1.2",
 		"typescript": "^7.0.2",
 		"vitest": "^4.1.10",
-		"wrangler": "^4.116.0"
+		"wrangler": "^4.118.0"
 	},
 	"dependencies": {
-		"@cloudflare/workerd-darwin-64": "^1.20260731.1",
+		"@cloudflare/workerd-darwin-64": "^1.20260804.1",
 		"lunar-javascript": "^1.7.7"
 	}
 }
