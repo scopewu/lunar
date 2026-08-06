@@ -885,12 +885,15 @@ export default {
 
 		const dateParam = url.searchParams.get('date');
 		const date = dateParam ? new Date(dateParam) : undefined;
-		const html = generateHtml(date);
 
-		if (url.pathname === '/') {
+		// Only '/' with a valid (or absent) ?date= serves the calendar; everything else is a 404.
+		if (url.pathname === '/' && (date === undefined || !isNaN(date.getTime()))) {
+			const html = generateHtml(date);
 			return new Response(html, {
 				headers: {
 					'content-type': 'text/html;charset=UTF-8',
+					// Content changes once a day; cache briefly at the edge and in browsers.
+					'cache-control': 'public, max-age=3600, s-maxage=3600',
 				},
 			});
 		}
