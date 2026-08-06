@@ -1,4 +1,5 @@
-import { env, createExecutionContext, waitOnExecutionContext, SELF } from 'cloudflare:test';
+import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
+import { env, exports } from 'cloudflare:workers';
 import { describe, it, expect, beforeAll } from 'vitest';
 import worker, { generateHtml } from '../src/index';
 
@@ -115,8 +116,9 @@ describe('generateHtml', () => {
 		expect(html).toContain('location.reload()');
 	});
 
-	it('contains footer with current year', () => {
-		expect(html).toContain('© 2026 Traditional Chinese Calendar');
+	it('contains footer with a copyright year', () => {
+		// Year comes from the server clock, so assert the shape rather than a fixed year.
+		expect(html).toMatch(/© \d{4} Traditional Chinese Calendar/);
 	});
 
 	it('contains footer links to GitHub and author', () => {
@@ -136,7 +138,7 @@ describe('generateHtml without argument', () => {
 });
 
 describe('Worker fetch handler', () => {
-	it('returns HTML with correct content type (unit style)', async () => {
+	it('returns HTML with correct headers (unit style)', async () => {
 		const request = new IncomingRequest('http://example.com');
 		const ctx = createExecutionContext();
 		const response = await worker.fetch(request, env, ctx);
@@ -144,13 +146,14 @@ describe('Worker fetch handler', () => {
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get('content-type')).toBe('text/html;charset=UTF-8');
+		expect(response.headers.get('cache-control')).toContain('max-age=3600');
 		const html = await response.text();
 		expect(html).toContain('<!DOCTYPE html>');
 		expect(html).toContain('农历');
 	});
 
 	it('returns HTML with correct content type (integration style)', async () => {
-		const response = await SELF.fetch('https://example.com');
+		const response = await exports.default.fetch('https://example.com');
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get('content-type')).toBe('text/html;charset=UTF-8');
@@ -160,10 +163,68 @@ describe('Worker fetch handler', () => {
 	});
 
 	it('handles ?date= query parameter', async () => {
-		const response = await SELF.fetch('https://example.com?date=2025-02-12');
+		const response = await exports.default.fetch('https://example.com?date=2025-02-12');
 
 		expect(response.status).toBe(200);
 		const html = await response.text();
 		expect(html).toContain('2025-02-12');
+	});
+});
+
+describe('static routes', () => {
+	it('serves /robots.txt as plain text allowing all', async () => {
+		const response = await exports.default.fetch('https://example.com/robots.txt');
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('content-type')).toBe('text/plain;charset=UTF-8');
+		expect(await response.text()).toBe('User-agent: *\nAllow: /\n');
+	});
+
+	it('serves /sitemap.xml as XML with the homepage entry', async () => {
+		const response = await exports.default.fetch('https://example.com/sitemap.xml');
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('content-type')).toBe('application/xml;charset=UTF-8');
+		const body = await response.text();
+		expect(body).toContain('<loc>https://example.com/</loc>');
+		expect(body).toContain('<changefreq>daily</changefreq>');
+	});
+
+	it('serves /favicon.ico as a cacheable icon', async () => {
+		const response = await exports.default.fetch('https://example.com/favicon.ico');
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('content-type')).toBe('image/x-icon');
+		expect(response.headers.get('cache-control')).toBe('public, max-age=86400');
+		const body = await response.arrayBuffer();
+		expect(body.byteLength).toBeGreaterThan(0);
+	});
+});
+
+describe('404 handling', () => {
+	it('returns the styled 404 page for unknown paths', async () => {
+		const response = await exports.default.fetch('https://example.com/no-such-page');
+
+		expect(response.status).toBe(404);
+		expect(response.headers.get('content-type')).toBe('text/html;charset=UTF-8');
+		const html = await response.text();
+		expect(html).toContain('<title>404 页面未找到 | Traditional Chinese Calendar</title>');
+		expect(html).toContain('<meta name="robots" content="noindex, nofollow">');
+		expect(html).toContain('返回首页 · Back to Home');
+	});
+
+	it('returns 404 instead of crashing on an invalid ?date=', async () => {
+		for (const bad of ['not-a-date', '2025-13-45']) {
+			const response = await exports.default.fetch(`https://example.com/?date=${bad}`);
+			expect(response.status).toBe(404);
+			expect(await response.text()).toContain('404');
+		}
+	});
+
+	it('treats an empty ?date= as today', async () => {
+		const response = await exports.default.fetch('https://example.com/?date=');
+
+		expect(response.status).toBe(200);
+		expect(await response.text()).toContain('<!DOCTYPE html>');
 	});
 });
