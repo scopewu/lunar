@@ -52,6 +52,12 @@ export function generateHtml(date?: Date): string {
 	<meta name="twitter:card" content="summary">
 	<link rel="canonical" href="https://lunar.tie.pub">
 	<link rel="sitemap" type="application/xml" href="https://lunar.tie.pub/sitemap.xml">
+	<script>
+		// Apply saved reading direction before first paint to avoid a horizontal→vertical flash.
+		if (localStorage.getItem('reading-mode') === 'vertical') {
+			document.documentElement.classList.add('vertical');
+		}
+	</script>
 	<link rel="apple-touch-icon" sizes="180x180" href="https://s.tie.pub/lunar-icons/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="https://s.tie.pub/lunar-icons/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="https://s.tie.pub/lunar-icons/favicon-16x16.png">
@@ -148,19 +154,64 @@ export function generateHtml(date?: Date): string {
 			}
 		}
 
+		/* ========== Reading Mode Toggle ========== */
+		.reading-toggle {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			z-index: 2;
+			width: 36px;
+			height: 36px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0;
+			border: 1px solid var(--color-border);
+			border-radius: 50%;
+			background: var(--color-card);
+			color: var(--color-accent);
+			font-family: var(--font-display);
+			font-size: 1.05rem;
+			line-height: 1;
+			cursor: pointer;
+			/* Keep the toggle a crisp horizontal button even when the card is vertical. */
+			writing-mode: horizontal-tb;
+			transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+		}
+
+		.reading-toggle:hover,
+		.reading-toggle:focus-visible {
+			background: var(--color-accent-light);
+			border-color: var(--color-accent);
+			outline: none;
+		}
+
+		.reading-toggle:focus-visible {
+			box-shadow: 0 0 0 3px var(--color-accent-light);
+		}
+
+		/* Label shows the mode it switches TO; flips with the class, no JS text sync needed. */
+		.reading-toggle::after {
+			content: '竪';
+		}
+
+		html.vertical .reading-toggle::after {
+			content: '横';
+		}
+
 		/* ========== Header ========== */
 		.header {
 			text-align: center;
-			margin-bottom: 40px;
-			padding-bottom: 28px;
-			border-bottom: 1px solid var(--color-border);
+			margin-block-end: 40px;
+			padding-block-end: 28px;
+			border-block-end: 1px solid var(--color-border);
 		}
 
 		.title {
 			font-family: var(--font-display);
 			font-size: 2.75rem;
 			color: var(--color-accent);
-			margin-bottom: 8px;
+			margin-block-end: 8px;
 			letter-spacing: 6px;
 			line-height: 1.2;
 		}
@@ -175,14 +226,14 @@ export function generateHtml(date?: Date): string {
 
 		/* ========== Sections ========== */
 		.section {
-			margin-bottom: 36px;
+			margin-block-end: 36px;
 		}
 
 		/* ========== Labels ========== */
 		.label {
 			font-size: 0.75rem;
 			color: var(--color-text-secondary);
-			margin-bottom: 12px;
+			margin-block-end: 12px;
 			text-transform: uppercase;
 			letter-spacing: 2px;
 			font-weight: 500;
@@ -236,7 +287,7 @@ export function generateHtml(date?: Date): string {
 			padding: 12px 16px;
 			background: var(--color-accent-light);
 			border-radius: 8px;
-			border-left: 2px solid var(--color-accent);
+			border-inline-start: 2px solid var(--color-accent);
 			transition: background-color 0.2s ease;
 		}
 
@@ -322,9 +373,9 @@ export function generateHtml(date?: Date): string {
 		/* ========== Footer ========== */
 		.footer {
 			text-align: center;
-			margin-top: 40px;
-			padding-top: 24px;
-			border-top: 1px solid var(--color-border);
+			margin-block-start: 40px;
+			padding-block-start: 24px;
+			border-block-start: 1px solid var(--color-border);
 			font-size: 0.75rem;
 			color: var(--color-text-secondary);
 			font-family: var(--font-heading);
@@ -483,6 +534,38 @@ export function generateHtml(date?: Date): string {
 			}
 		}
 
+		/* ========== Vertical Reading Mode ==========
+		   writing-mode: vertical-rl on the container propagates to descendants, so
+		   sections become right-to-left columns and text flows top-to-bottom. The
+		   container scrolls internally; because it is position:relative, the
+		   absolutely-positioned toggle stays pinned in the corner while scrolling. */
+		html.vertical body {
+			overflow: hidden;
+		}
+
+		html.vertical .container {
+			writing-mode: vertical-rl;
+			max-width: calc(100vw - 40px);
+			max-height: calc(100dvh - 40px);
+			overflow: auto;
+			/* Keep the first column clear of the floating toggle in the top-right corner. */
+			padding-top: 56px;
+		}
+
+		/* Counter the narrow-screen override so label/value stack top-to-bottom
+		   (flex row → inline axis, which is vertical under writing-mode: vertical-rl). */
+		html.vertical .stem-branch {
+			flex-direction: row;
+			gap: 6px;
+		}
+
+		@media (max-width: 500px) {
+			html.vertical .container {
+				max-width: calc(100vw - 32px);
+				max-height: calc(100dvh - 32px);
+			}
+		}
+
 		/* ========== Accessibility: Reduced Motion ========== */
 		@media (prefers-reduced-motion: reduce) {
 			*,
@@ -497,6 +580,7 @@ export function generateHtml(date?: Date): string {
 </head>
 <body>
 	<div class="container">
+		<button type="button" class="reading-toggle" aria-label="切换阅读方向 横排/竪排" aria-pressed="false" title="切换阅读方向（横排/竪排）"></button>
 		<header class="header">
 			<h1 class="title">农历</h1>
 			<p class="subtitle">Traditional Chinese Calendar</p>
@@ -610,7 +694,25 @@ export function generateHtml(date?: Date): string {
 			}, msUntilMidnight);
 		}
 
+		function setupReadingToggle() {
+			const toggle = document.querySelector('.reading-toggle');
+			if (!toggle) return;
+			const sync = () => {
+				toggle.setAttribute(
+					'aria-pressed',
+					String(document.documentElement.classList.contains('vertical'))
+				);
+			};
+			sync();
+			toggle.addEventListener('click', () => {
+				const isVertical = document.documentElement.classList.toggle('vertical');
+				sync();
+				localStorage.setItem('reading-mode', isVertical ? 'vertical' : 'horizontal');
+			});
+		}
+
 		scheduleMidnightRefresh();
+		setupReadingToggle();
 	</script>
 </body>
 </html>`;

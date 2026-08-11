@@ -116,6 +116,38 @@ describe('generateHtml', () => {
 		expect(html).toContain('location.reload()');
 	});
 
+	describe('vertical reading mode', () => {
+		it('renders the reading-mode toggle button', () => {
+			expect(html).toContain('class="reading-toggle"');
+			expect(html).toContain('aria-label="切换阅读方向 横排/竪排"');
+		});
+
+		it('includes the vertical writing-mode override', () => {
+			expect(html).toContain('writing-mode: vertical-rl');
+			expect(html).toContain('html.vertical');
+		});
+
+		it('persists the choice via localStorage', () => {
+			expect(html).toContain("localStorage.setItem('reading-mode'");
+			expect(html).toContain("localStorage.getItem('reading-mode')");
+		});
+
+		it('applies the saved direction before first paint', () => {
+			// The no-FOUC script lives in <head>, before the <style> block.
+			const headEnd = html.indexOf('</head>');
+			const styleStart = html.indexOf('<style>');
+			const noFlash = html.indexOf("classList.add('vertical')");
+			expect(noFlash).toBeGreaterThan(-1);
+			expect(noFlash).toBeLessThan(styleStart);
+			expect(styleStart).toBeLessThan(headEnd);
+		});
+
+		it('defaults to horizontal (no vertical class in static HTML)', () => {
+			expect(html).not.toContain('<html lang="zh-CN" class');
+			expect(html).not.toContain('class="vertical"');
+		});
+	});
+
 	it('contains footer with a copyright year', () => {
 		// Year comes from the server clock, so assert the shape rather than a fixed year.
 		expect(html).toMatch(/© \d{4} Traditional Chinese Calendar/);
