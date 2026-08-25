@@ -3,8 +3,29 @@ import { FAVICON_ICO_BASE64 } from './favicon';
 
 const FAVICON_ICO = Uint8Array.from(atob(FAVICON_ICO_BASE64), (c) => c.charCodeAt(0));
 
-export function generateHtml(date?: Date): string {
-	const solar = Solar.fromDate(date ?? new Date());
+const DEFAULT_TIME_ZONE = 'Asia/Shanghai';
+
+// Workers run in UTC and Solar.fromDate reads local-time getters, so "today" must be
+// derived from the visitor's wall clock: format now in `timeZone`, then anchor that
+// Y/M/D at UTC noon so the UTC getters see exactly that date. An invalid IANA name
+// (e.g. a bogus cf.timezone) falls back to the default zone.
+export function todayInTimeZone(timeZone: string, now: Date = new Date()): Date {
+	try {
+		const parts = new Intl.DateTimeFormat('en-US', {
+			timeZone,
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+		}).formatToParts(now);
+		const get = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+		return new Date(`${get('year')}-${get('month')}-${get('day')}T12:00:00Z`);
+	} catch {
+		return todayInTimeZone(DEFAULT_TIME_ZONE, now);
+	}
+}
+
+export function generateHtml(date: Date): string {
+	const solar = Solar.fromDate(date);
 	const lunar = solar.getLunar();
 
 	const gregorianDate = solar.toString();
@@ -24,7 +45,7 @@ export function generateHtml(date?: Date): string {
 	const nextJieQiLunar = nextJieQiSolar?.getLunar() ?? null;
 	const nextJieQiLunarDate = nextJieQiLunar ? `${nextJieQiLunar.getMonthInChinese()}月${nextJieQiLunar.getDayInChinese()}` : '';
 
-	const year = new Date().getFullYear();
+	const year = solar.getYear();
 
 	const html = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -986,10 +1007,12 @@ export default {
 		}
 
 		const dateParam = url.searchParams.get('date');
-		const date = dateParam ? new Date(dateParam) : undefined;
+		// Without ?date=, "today" follows the visitor's timezone (Cloudflare derives it from
+		// the request IP); the Worker itself always runs in UTC.
+		const date = dateParam ? new Date(dateParam) : todayInTimeZone(request.cf?.timezone || DEFAULT_TIME_ZONE);
 
 		// Only '/' with a valid (or absent) ?date= serves the calendar; everything else is a 404.
-		if (url.pathname === '/' && (date === undefined || !isNaN(date.getTime()))) {
+		if (url.pathname === '/' && !isNaN(date.getTime())) {
 			const html = generateHtml(date);
 			return new Response(html, {
 				headers: {

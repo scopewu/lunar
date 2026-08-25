@@ -2,6 +2,7 @@ declare module 'lunar-javascript' {
 	export class Solar {
 		static fromDate(date: Date): Solar;
 		getLunar(): Lunar;
+		getYear(): number;
 		toString(): string;
 	}
 

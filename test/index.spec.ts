@@ -1,7 +1,7 @@
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { env, exports } from 'cloudflare:workers';
 import { describe, it, expect, beforeAll } from 'vitest';
-import worker, { generateHtml } from '../src/index';
+import worker, { generateHtml, todayInTimeZone } from '../src/index';
 
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 
@@ -161,11 +161,25 @@ describe('generateHtml', () => {
 	});
 });
 
-describe('generateHtml without argument', () => {
-	it('uses current date when no argument provided', () => {
-		const html = generateHtml();
-		const today = new Date().toISOString().split('T')[0];
-		expect(html).toContain(today);
+describe('todayInTimeZone', () => {
+	it('rolls to the next day in Asia/Shanghai before 08:00 UTC', () => {
+		// 2026-08-24 20:30 UTC is already 04:30 on the 25th in UTC+8 Shanghai.
+		expect(todayInTimeZone('Asia/Shanghai', new Date('2026-08-24T20:30:00Z')).toISOString()).toBe('2026-08-25T12:00:00.000Z');
+	});
+
+	it('stays on the same UTC day for timezones behind UTC', () => {
+		// Same instant is 16:30 on 2026-08-24 in New York (EDT, UTC-4).
+		expect(todayInTimeZone('America/New_York', new Date('2026-08-24T20:30:00Z')).toISOString()).toBe('2026-08-24T12:00:00.000Z');
+	});
+
+	it('rolls back across a year boundary', () => {
+		// 2026-01-01 00:30 UTC is still the evening of 2025-12-31 in New York.
+		expect(todayInTimeZone('America/New_York', new Date('2026-01-01T00:30:00Z')).toISOString()).toBe('2025-12-31T12:00:00.000Z');
+	});
+
+	it('falls back to Asia/Shanghai on an invalid timezone name', () => {
+		const now = new Date('2026-08-24T20:30:00Z');
+		expect(todayInTimeZone('Not/A_Zone', now).toISOString()).toBe(todayInTimeZone('Asia/Shanghai', now).toISOString());
 	});
 });
 
@@ -200,6 +214,27 @@ describe('Worker fetch handler', () => {
 		expect(response.status).toBe(200);
 		const html = await response.text();
 		expect(html).toContain('2025-02-12');
+	});
+
+	it('defaults to Asia/Shanghai when cf.timezone is absent', async () => {
+		const response = await exports.default.fetch('https://example.com');
+
+		const html = await response.text();
+		const expected = todayInTimeZone('Asia/Shanghai').toISOString().slice(0, 10);
+		expect(html).toContain(`<div class="value">${expected}</div>`);
+	});
+
+	it('renders today in the visitor timezone from request.cf', async () => {
+		// A real cf object carries many more fields; only timezone matters here.
+		const cf = { timezone: 'America/New_York' } as IncomingRequestCfProperties;
+		const request = new IncomingRequest('https://example.com', { cf });
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(request, env, ctx);
+		await waitOnExecutionContext(ctx);
+
+		const html = await response.text();
+		const expected = todayInTimeZone('America/New_York').toISOString().slice(0, 10);
+		expect(html).toContain(`<div class="value">${expected}</div>`);
 	});
 });
 
