@@ -15,11 +15,10 @@
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.22.0",
-		"@cloudflare/workerd-darwin-64": "^1.20260824.1",
-		"@types/node": "^26.2.0",
+		"@types/node": "^26",
 		"typescript": "^7.0.2",
 		"vitest": "^4.1.11",
-		"wrangler": "^4.125.0"
+		"wrangler": "^4.128.0"
 	},
 	"dependencies": {
 		"lunar-javascript": "^1.7.7"

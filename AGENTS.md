@@ -38,7 +38,6 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 	- any other path → `generate404Html()` with status 404
 - **Workers run in UTC** and `Solar.fromDate` reads local-time getters, so `new Date()` gives the wrong "today" for UTC+8 visitors before 08:00. "Today" is derived via `todayInTimeZone(request.cf?.timezone || 'Asia/Shanghai')` (exported from `src/index.ts`): it anchors the visitor's wall-clock Y/M/D at UTC noon. The footer year follows the displayed date (`solar.getYear()`), not the server clock. Note the homepage is cached per URL (`s-maxage=3600`), so an edge-cached copy can serve another timezone's date within the TTL.
 - **No bindings configured.** `Env` is empty (`worker-configuration.d.ts` → `interface __BaseEnv_Env {}`). Don't assume KV/D1/R1/Durable Objects exist.
-- **`@cloudflare/workerd-darwin-64` is an explicit devDependency** (platform-specific workerd binary pinned for macOS). On Linux/Windows the equivalent platform package must be substituted.
 
 ## Code Style
 
