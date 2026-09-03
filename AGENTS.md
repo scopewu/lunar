@@ -8,7 +8,7 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 
 - **`src/index.ts`** — the entire app. Exports `generateHtml(date?: Date): string` and the default Worker handler object. HTML, CSS, and client JS are all inlined in template literals.
 - **`src/favicon.ts`** — base64-inlined `favicon.ico` (generated file, 20 KB single-line string; regenerate from `https://s.tie.pub/lunar-icons/favicon.ico` if the icon changes). Served by the `/favicon.ico` route.
-- **`src/lunar-javascript.d.ts`** — manual type declarations (27 lines). The `lunar-javascript` library ships no TS types; this file is the single source of truth for its API surface. **Update it first** when using any new library method.
+- **`src/lunar-javascript.d.ts`** — manual type declarations (27 lines). The `lunar-javascript` library ships no TS types; this file is the single source of truth for its API surface. **Update it first** when using any new library method. It is wired via `paths` in `tsconfig.json` (plain top-level exports, **not** `declare module`) because TypeScript 7 ignores ambient module declarations for packages that resolve to a JS file.
 - **`test/index.spec.ts`** — tests import `createExecutionContext`/`waitOnExecutionContext` from `cloudflare:test` and `env`/`exports` from `cloudflare:workers` (the pool's deprecated `cloudflare:test` `env`/`SELF` aliases must not be used), plus `../src/index`. Uses `FIXED_DATE = new Date('2026-04-03T12:00:00Z')` for deterministic assertions.
 - **`test/tsconfig.json`** — tests have their own tsconfig (extends root, `types: ["@cloudflare/vitest-pool-workers/types"]`; note the `/types` subpath — the package's main entry does not declare the `cloudflare:test` module). Root `tsconfig.json` **excludes `test/`**, so don't run a root typecheck expecting it to cover tests.
 - **`test.mjs`** was a throwaway 1-liner for manual `lunar-javascript` sanity checks; it has been removed from the repo.
@@ -30,7 +30,7 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 ## Key Gotchas
 
 - **No lint/format scripts.** Don't invent `npm run lint`. Typechecking is `npm run check`. See commands above.
-- **`lunar-javascript` has no TS types.** Update `src/lunar-javascript.d.ts` first whenever a new API is used; TypeScript is in `strict` mode with `target: es2024`.
+- **`lunar-javascript` has no TS types.** Update `src/lunar-javascript.d.ts` first whenever a new API is used (wired via `tsconfig.json` `paths`; keep it wrapper-free). TypeScript is in `strict` mode with `target: es2024`.
 - **`generateHtml()` is exported** specifically for testability. The Worker handler calls it; tests call it directly. Keep it pure (no `Request`/`Response`/`env` access) — the handler owns HTTP concerns.
 - **Worker routing** (in `src/index.ts`, default `fetch`):
 	- `GET /` → calendar HTML (`?date=YYYY-MM-DD` overrides today's date; **invalid dates return 404** instead of crashing)

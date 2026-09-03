@@ -8,7 +8,11 @@
 		"isolatedModules": true,
 		"strict": true,
 		"skipLibCheck": true,
-		"types": ["node"]
+		"types": ["node"],
+		// TS 7 ignores ambient `declare module` for packages that resolve to a JS file; map the specifier explicitly
+		"paths": {
+			"lunar-javascript": ["./src/lunar-javascript.d.ts"]
+		}
 	},
 	"exclude": ["test"],
 	"include": ["worker-configuration.d.ts", "src/**/*.ts"]
