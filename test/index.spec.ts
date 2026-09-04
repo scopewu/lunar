@@ -268,7 +268,7 @@ describe('static routes', () => {
 	});
 });
 
-describe('404 handling', () => {
+describe('error handling', () => {
 	it('returns the styled 404 page for unknown paths', async () => {
 		const response = await exports.default.fetch('https://example.com/no-such-page');
 
@@ -280,12 +280,21 @@ describe('404 handling', () => {
 		expect(html).toContain('返回首页 · Back to Home');
 	});
 
-	it('returns 404 instead of crashing on an invalid ?date=', async () => {
+	it('returns 400 with an explicit error page on an invalid ?date=', async () => {
 		for (const bad of ['not-a-date', '2025-13-45']) {
 			const response = await exports.default.fetch(`https://example.com/?date=${bad}`);
-			expect(response.status).toBe(404);
-			expect(await response.text()).toContain('404');
+			expect(response.status).toBe(400);
+			const html = await response.text();
+			expect(html).toContain('<title>400 日期无效 | Traditional Chinese Calendar</title>');
+			expect(html).toContain('日期参数无效或超出支持范围');
 		}
+	});
+
+	it('returns 400 for parseable dates outside the supported range', async () => {
+		// new Date() accepts year 10000 but lunar-javascript throws on it.
+		const response = await exports.default.fetch('https://example.com/?date=%2B010000-01-01');
+		expect(response.status).toBe(400);
+		expect(await response.text()).toContain('400');
 	});
 
 	it('treats an empty ?date= as today', async () => {

@@ -741,14 +741,33 @@ export function generateHtml(date: Date): string {
 	return html;
 }
 
-export function generate404Html(): string {
+// Known client errors render the same styled page; only the copy differs.
+const ERROR_PAGES = {
+	400: {
+		title: '日期无效',
+		subtitle: '日期无效 · Invalid Date',
+		messageZh: '日期参数无效或超出支持范围，请使用 YYYY-MM-DD 格式。',
+		messageEn: 'The date parameter is invalid or out of range. Please use the YYYY-MM-DD format.',
+	},
+	404: {
+		title: '页面未找到',
+		subtitle: '页面未找到 · Page Not Found',
+		messageZh: '您访问的页面不存在。',
+		messageEn: 'The page you are looking for does not exist.',
+	},
+} as const;
+
+type ErrorStatus = keyof typeof ERROR_PAGES;
+
+export function generateErrorHtml(status: ErrorStatus = 404): string {
+	const { title, subtitle, messageZh, messageEn } = ERROR_PAGES[status];
 	const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>404 页面未找到 | Traditional Chinese Calendar</title>
-	<meta name="description" content="您访问的页面不存在。The page you are looking for does not exist.">
+	<title>${title} | Traditional Chinese Calendar</title>
+	<meta name="description" content="${messageZh}${messageEn}">
 	<meta name="robots" content="noindex, nofollow">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -952,11 +971,11 @@ export function generate404Html(): string {
 </head>
 <body>
 	<div class="container">
-		<div class="error-code">404</div>
-		<p class="subtitle">页面未找到 · Page Not Found</p>
+		<div class="error-code">${status}</div>
+		<p class="subtitle">${subtitle}</p>
 		<div class="message">
-			<p>您访问的页面不存在。</p>
-			<p>The page you are looking for does not exist.</p>
+			<p>${messageZh}</p>
+			<p>${messageEn}</p>
 		</div>
 		<a class="home-link" href="/" aria-label="返回首页 Back to Home">
 			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/><path d="M9 21v-6h6v6"/></svg>
@@ -1011,19 +1030,38 @@ export default {
 		// the request IP); the Worker itself always runs in UTC.
 		const date = dateParam ? new Date(dateParam) : todayInTimeZone(request.cf?.timezone || DEFAULT_TIME_ZONE);
 
-		// Only '/' with a valid (or absent) ?date= serves the calendar; everything else is a 404.
-		if (url.pathname === '/' && !isNaN(date.getTime())) {
-			const html = generateHtml(date);
-			return new Response(html, {
+		// Only '/' serves the calendar; everything else is a 404.
+		if (url.pathname === '/') {
+			// A bad ?date= is a known client error, not a missing page: unparseable strings
+			// yield NaN, and extreme-but-parseable dates (e.g. year 10000) make lunar-javascript
+			// throw, so both map to 400 rather than 404 or an unhandled 500.
+			let html: string | null = null;
+			if (!isNaN(date.getTime())) {
+				try {
+					html = generateHtml(date);
+				} catch {
+					html = null;
+				}
+			}
+			if (html !== null) {
+				return new Response(html, {
+					headers: {
+						'content-type': 'text/html;charset=UTF-8',
+						// Content changes once a day; cache briefly at the edge and in browsers.
+						'cache-control': 'public, max-age=3600, s-maxage=3600',
+					},
+				});
+			}
+
+			return new Response(generateErrorHtml(400), {
+				status: 400,
 				headers: {
 					'content-type': 'text/html;charset=UTF-8',
-					// Content changes once a day; cache briefly at the edge and in browsers.
-					'cache-control': 'public, max-age=3600, s-maxage=3600',
 				},
 			});
 		}
 
-		return new Response(generate404Html(), {
+		return new Response(generateErrorHtml(404), {
 			status: 404,
 			headers: {
 				'content-type': 'text/html;charset=UTF-8',

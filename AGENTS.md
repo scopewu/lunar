@@ -33,9 +33,9 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 - **`lunar-javascript` has no TS types.** Update `src/lunar-javascript.d.ts` first whenever a new API is used (wired via `tsconfig.json` `paths`; keep it wrapper-free). TypeScript is in `strict` mode with `target: es2024`.
 - **`generateHtml()` is exported** specifically for testability. The Worker handler calls it; tests call it directly. Keep it pure (no `Request`/`Response`/`env` access) — the handler owns HTTP concerns.
 - **Worker routing** (in `src/index.ts`, default `fetch`):
-	- `GET /` → calendar HTML (`?date=YYYY-MM-DD` overrides today's date; **invalid dates return 404** instead of crashing)
+	- `GET /` → calendar HTML (`?date=YYYY-MM-DD` overrides today's date; invalid or out-of-range dates return a styled **400** page via `generateErrorHtml(400)` — `generateHtml` is wrapped in try/catch because extreme-but-parseable dates like year 10000 make `lunar-javascript` throw)
 	- `GET /robots.txt`, `/sitemap.xml` → static responses; `GET /favicon.ico` → inlined icon from `src/favicon.ts` (runtime fetch of `s.tie.pub` is impossible: same-zone subrequests redirect-loop)
-	- any other path → `generate404Html()` with status 404
+	- any other path → `generateErrorHtml(404)` with status 404 (the shared error-page generator takes a status from the `ERROR_PAGES` copy map)
 - **Workers run in UTC** and `Solar.fromDate` reads local-time getters, so `new Date()` gives the wrong "today" for UTC+8 visitors before 08:00. "Today" is derived via `todayInTimeZone(request.cf?.timezone || 'Asia/Shanghai')` (exported from `src/index.ts`): it anchors the visitor's wall-clock Y/M/D at UTC noon. The footer year follows the displayed date (`solar.getYear()`), not the server clock. Note the homepage is cached per URL (`s-maxage=3600`), so an edge-cached copy can serve another timezone's date within the TTL.
 - **No bindings configured.** `Env` is empty (`worker-configuration.d.ts` → `interface __BaseEnv_Env {}`). Don't assume KV/D1/R1/Durable Objects exist.
 
