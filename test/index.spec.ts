@@ -290,9 +290,10 @@ describe('error handling', () => {
 		}
 	});
 
-	it('returns 400 for parseable dates outside the supported range', async () => {
-		// new Date() accepts year 10000 but lunar-javascript throws on it.
-		const response = await exports.default.fetch('https://example.com/?date=%2B010000-01-01');
+	it('returns 400 for parseable dates unsupported by lunar-javascript', async () => {
+		// 1582-10-05..14 is the Gregorian cutover gap: new Date() parses it,
+		// but lunar-javascript throws 'wrong solar year 1582 month 10 day ...'.
+		const response = await exports.default.fetch('https://example.com/?date=1582-10-10');
 		expect(response.status).toBe(400);
 		expect(await response.text()).toContain('400');
 	});

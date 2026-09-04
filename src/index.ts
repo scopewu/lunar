@@ -766,7 +766,7 @@ export function generateErrorHtml(status: ErrorStatus = 404): string {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>${title} | Traditional Chinese Calendar</title>
+	<title>${status} ${title} | Traditional Chinese Calendar</title>
 	<meta name="description" content="${messageZh}${messageEn}">
 	<meta name="robots" content="noindex, nofollow">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1033,8 +1033,9 @@ export default {
 		// Only '/' serves the calendar; everything else is a 404.
 		if (url.pathname === '/') {
 			// A bad ?date= is a known client error, not a missing page: unparseable strings
-			// yield NaN, and extreme-but-parseable dates (e.g. year 10000) make lunar-javascript
-			// throw, so both map to 400 rather than 404 or an unhandled 500.
+			// yield NaN, and parseable-but-unsupported dates (the 1582-10-05..14 Gregorian
+			// cutover gap) make lunar-javascript throw, so both map to 400 rather than
+			// 404 or an unhandled 500.
 			let html: string | null = null;
 			if (!isNaN(date.getTime())) {
 				try {

@@ -9,7 +9,8 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"test": "vitest",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"check": "tsc --noEmit && tsc --noEmit -p test/tsconfig.json",
 		"cf-typegen": "wrangler types"
 	},
