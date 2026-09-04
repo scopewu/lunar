@@ -275,7 +275,7 @@ describe('error handling', () => {
 		expect(response.status).toBe(404);
 		expect(response.headers.get('content-type')).toBe('text/html;charset=UTF-8');
 		const html = await response.text();
-		expect(html).toContain('<title>404 页面未找到 | Traditional Chinese Calendar</title>');
+		expect(html).toContain('<title>页面未找到 | Traditional Chinese Calendar</title>');
 		expect(html).toContain('<meta name="robots" content="noindex, nofollow">');
 		expect(html).toContain('返回首页 · Back to Home');
 	});
@@ -285,7 +285,7 @@ describe('error handling', () => {
 			const response = await exports.default.fetch(`https://example.com/?date=${bad}`);
 			expect(response.status).toBe(400);
 			const html = await response.text();
-			expect(html).toContain('<title>400 日期无效 | Traditional Chinese Calendar</title>');
+			expect(html).toContain('<title>日期无效 | Traditional Chinese Calendar</title>');
 			expect(html).toContain('日期参数无效或超出支持范围');
 		}
 	});
