@@ -5,10 +5,8 @@ const FAVICON_ICO = Uint8Array.from(atob(FAVICON_ICO_BASE64), (c) => c.charCodeA
 
 const DEFAULT_TIME_ZONE = 'Asia/Shanghai';
 
-// Workers run in UTC and Solar.fromDate reads local-time getters, so "today" must be
-// derived from the visitor's wall clock: format now in `timeZone`, then anchor that
-// Y/M/D at UTC noon so the UTC getters see exactly that date. An invalid IANA name
-// (e.g. a bogus cf.timezone) falls back to the default zone.
+// Workers run in UTC and Solar.fromDate reads local-time getters, so "today" is the visitor's
+// wall-clock Y/M/D anchored at UTC noon. An invalid IANA name falls back to the default zone.
 export function todayInTimeZone(timeZone: string, now: Date = new Date()): Date {
 	try {
 		const parts = new Intl.DateTimeFormat('en-US', {
@@ -24,28 +22,59 @@ export function todayInTimeZone(timeZone: string, now: Date = new Date()): Date 
 	}
 }
 
-export function generateHtml(date: Date): string {
+export interface LunarInfo {
+	gregorian: string;
+	lunar: string;
+	ganZhi: { year: string; month: string; day: string };
+	zodiac: string;
+	jieQi: string | null;
+	nextJieQi: { name: string; date: string; lunarDate: string } | null;
+	yi: string[];
+	ji: string[];
+}
+
+export function generateLunarInfo(date: Date): LunarInfo {
 	const solar = Solar.fromDate(date);
 	const lunar = solar.getLunar();
 
-	const gregorianDate = solar.toString();
-	// const lunarDate = lunar.toString();
-	const lunarDate = `${lunar.getYearInGanZhi()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
-	const yearGanZhi = lunar.getYearInGanZhi();
-	const monthGanZhi = lunar.getMonthInGanZhi();
-	const dayGanZhi = lunar.getDayInGanZhi();
-	const zodiac = lunar.getYearShengXiao();
-	const yi = lunar.getDayYi();
-	const ji = lunar.getDayJi();
-	const jieQi = lunar.getJieQi();
 	const nextJieQi = lunar.getNextJieQi(true);
-	const nextJieQiName = nextJieQi?.getName() ?? '';
 	const nextJieQiSolar = nextJieQi?.getSolar() ?? null;
-	const nextJieQiDate = nextJieQiSolar?.toString() ?? '';
 	const nextJieQiLunar = nextJieQiSolar?.getLunar() ?? null;
-	const nextJieQiLunarDate = nextJieQiLunar ? `${nextJieQiLunar.getMonthInChinese()}月${nextJieQiLunar.getDayInChinese()}` : '';
 
-	const year = solar.getYear();
+	return {
+		gregorian: solar.toString(),
+		lunar: `${lunar.getYearInGanZhi()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
+		ganZhi: {
+			year: lunar.getYearInGanZhi(),
+			month: lunar.getMonthInGanZhi(),
+			day: lunar.getDayInGanZhi(),
+		},
+		zodiac: lunar.getYearShengXiao(),
+		jieQi: lunar.getJieQi() || null,
+		nextJieQi:
+			nextJieQi && nextJieQiSolar
+				? {
+						name: nextJieQi.getName(),
+						date: nextJieQiSolar.toString(),
+						lunarDate: nextJieQiLunar ? `${nextJieQiLunar.getMonthInChinese()}月${nextJieQiLunar.getDayInChinese()}` : '',
+					}
+				: null,
+		yi: lunar.getDayYi(),
+		ji: lunar.getDayJi(),
+	};
+}
+
+export function generateHtml(date: Date): string {
+	const { gregorian: gregorianDate, lunar: lunarDate, ganZhi, zodiac, yi, ji, jieQi, nextJieQi } = generateLunarInfo(date);
+
+	const yearGanZhi = ganZhi.year;
+	const monthGanZhi = ganZhi.month;
+	const dayGanZhi = ganZhi.day;
+	const nextJieQiName = nextJieQi?.name ?? '';
+	const nextJieQiDate = nextJieQi?.date ?? '';
+	const nextJieQiLunarDate = nextJieQi?.lunarDate ?? '';
+
+	const year = gregorianDate.slice(0, 4);
 
 	const html = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -104,7 +133,6 @@ export function generateHtml(date: Date): string {
 	<style>
 		/* ========== CSS Variables ========== */
 		:root {
-			/* Colors - Fresh & Clean Palette */
 			--color-bg: #FAFAF7;
 			--color-card: #FFFFFF;
 			--color-text-primary: #1A1A1A;
@@ -114,19 +142,16 @@ export function generateHtml(date: Date): string {
 			--color-gold: #C4956A;
 			--color-border: #E5E5E0;
 
-			/* Typography */
 			--font-display: 'Ma Shan Zheng', cursive;
 			--font-heading: 'ZCOOL XiaoWei', serif;
 			--font-body: 'Noto Serif SC', 'STSong', 'SimSun', serif;
 
-			/* Spacing */
 			--space-xs: 4px;
 			--space-sm: 8px;
 			--space-md: 16px;
 			--space-lg: 24px;
 			--space-xl: 32px;
 
-			/* Effects */
 			--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04),
 							 0 8px 24px rgba(0, 0, 0, 0.04);
 		}
@@ -556,10 +581,9 @@ export function generateHtml(date: Date): string {
 		}
 
 		/* ========== Vertical Reading Mode ==========
-		   writing-mode: vertical-rl on the container propagates to descendants, so
-		   sections become right-to-left columns and text flows top-to-bottom. The
-		   container scrolls internally; because it is position:relative, the
-		   absolutely-positioned toggle stays pinned in the corner while scrolling. */
+		   writing-mode: vertical-rl propagates to descendants, so sections become
+		   right-to-left columns; the container is position:relative, so the
+		   absolutely-positioned toggle stays pinned while it scrolls. */
 		html.vertical body {
 			overflow: hidden;
 		}
@@ -741,7 +765,6 @@ export function generateHtml(date: Date): string {
 	return html;
 }
 
-// Known client errors render the same styled page; only the copy differs.
 const ERROR_PAGES = {
 	400: {
 		title: '日期无效',
@@ -988,6 +1011,14 @@ export function generateErrorHtml(status: ErrorStatus = 404): string {
 	return html;
 }
 
+function jsonResponse(data: unknown, status = 200, cacheControl?: string): Response {
+	const headers: Record<string, string> = { 'content-type': 'application/json;charset=UTF-8' };
+	if (cacheControl) {
+		headers['cache-control'] = cacheControl;
+	}
+	return new Response(JSON.stringify(data), { status, headers });
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const url = new URL(request.url);
@@ -1025,17 +1056,38 @@ export default {
 			});
 		}
 
+		if (url.pathname === '/api/today') {
+			const date = todayInTimeZone(request.cf?.timezone || DEFAULT_TIME_ZONE);
+			return jsonResponse(generateLunarInfo(date), 200, 'public, max-age=3600, s-maxage=3600');
+		}
+
+		const apiDateMatch = /^\/api\/([^/]+)$/.exec(url.pathname);
+		if (apiDateMatch) {
+			const day = apiDateMatch[1];
+			let info: LunarInfo | null = null;
+			// Anchored at UTC noon like todayInTimeZone; unsupported dates (1582 cutover gap) throw.
+			if (/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+				try {
+					info = generateLunarInfo(new Date(`${day}T12:00:00Z`));
+				} catch {
+					info = null;
+				}
+			}
+			if (info === null) {
+				return jsonResponse(
+					{ error: '日期无效或超出支持范围，请使用 /api/YYYY-MM-DD。Invalid or unsupported date; use /api/YYYY-MM-DD.' },
+					400,
+				);
+			}
+			return jsonResponse(info, 200, 'public, max-age=86400, s-maxage=86400');
+		}
+
 		const dateParam = url.searchParams.get('date');
-		// Without ?date=, "today" follows the visitor's timezone (Cloudflare derives it from
-		// the request IP); the Worker itself always runs in UTC.
 		const date = dateParam ? new Date(dateParam) : todayInTimeZone(request.cf?.timezone || DEFAULT_TIME_ZONE);
 
-		// Only '/' serves the calendar; everything else is a 404.
 		if (url.pathname === '/') {
-			// A bad ?date= is a known client error, not a missing page: unparseable strings
-			// yield NaN, and parseable-but-unsupported dates (the 1582-10-05..14 Gregorian
-			// cutover gap) make lunar-javascript throw, so both map to 400 rather than
-			// 404 or an unhandled 500.
+			// A bad ?date= is a 400, not 404/500: unparseable strings yield NaN, and unsupported
+			// dates (the 1582-10-05..14 Gregorian cutover gap) make lunar-javascript throw.
 			let html: string | null = null;
 			if (!isNaN(date.getTime())) {
 				try {
@@ -1048,7 +1100,6 @@ export default {
 				return new Response(html, {
 					headers: {
 						'content-type': 'text/html;charset=UTF-8',
-						// Content changes once a day; cache briefly at the edge and in browsers.
 						'cache-control': 'public, max-age=3600, s-maxage=3600',
 					},
 				});

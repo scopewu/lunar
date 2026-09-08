@@ -1,7 +1,7 @@
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { env, exports } from 'cloudflare:workers';
 import { describe, it, expect, beforeAll } from 'vitest';
-import worker, { generateHtml, todayInTimeZone } from '../src/index';
+import worker, { generateHtml, generateLunarInfo, todayInTimeZone, type LunarInfo } from '../src/index';
 
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 
@@ -303,5 +303,75 @@ describe('error handling', () => {
 
 		expect(response.status).toBe(200);
 		expect(await response.text()).toContain('<!DOCTYPE html>');
+	});
+});
+
+describe('generateLunarInfo', () => {
+	const info = generateLunarInfo(FIXED_DATE);
+
+	it('returns the data shown on the homepage', () => {
+		expect(info.gregorian).toBe('2026-04-03');
+		expect(info.lunar).toMatch(/^.+年.+月.+$/);
+		expect(info.ganZhi.year).toBe('丙午');
+		expect(info.ganZhi.month).toBeTruthy();
+		expect(info.ganZhi.day).toBeTruthy();
+		expect(info.zodiac).toBe('马');
+		expect(info.yi.length).toBeGreaterThan(0);
+		expect(info.ji.length).toBeGreaterThan(0);
+	});
+
+	it('has no jieqi on an ordinary day, but names the next one', () => {
+		expect(info.jieQi).toBeNull();
+		expect(info.nextJieQi?.name).toBe('清明');
+	});
+
+	it('flags a jieqi day', () => {
+		const info = generateLunarInfo(new Date('2026-05-05T12:00:00Z'));
+
+		expect(info.jieQi).toBe('立夏');
+		expect(info.nextJieQi).toEqual({ name: '小满', date: '2026-05-21', lunarDate: '四月初五' });
+	});
+});
+
+describe('JSON API', () => {
+	it('serves /api/today as cached JSON for today in the visitor timezone', async () => {
+		const response = await exports.default.fetch('https://example.com/api/today');
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('content-type')).toBe('application/json;charset=UTF-8');
+		expect(response.headers.get('cache-control')).toContain('max-age=3600');
+		const data = (await response.json()) as LunarInfo;
+		expect(data.gregorian).toBe(todayInTimeZone('Asia/Shanghai').toISOString().slice(0, 10));
+	});
+
+	it('honors request.cf.timezone for /api/today (unit style)', async () => {
+		const cf = { timezone: 'America/New_York' } as IncomingRequestCfProperties;
+		const request = new IncomingRequest('https://example.com/api/today', { cf });
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(request, env, ctx);
+		await waitOnExecutionContext(ctx);
+
+		const data = (await response.json()) as LunarInfo;
+		expect(data.gregorian).toBe(todayInTimeZone('America/New_York').toISOString().slice(0, 10));
+	});
+
+	it('serves /api/YYYY-MM-DD with the same data as generateLunarInfo', async () => {
+		const response = await exports.default.fetch('https://example.com/api/2026-04-03');
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('content-type')).toBe('application/json;charset=UTF-8');
+		expect(response.headers.get('cache-control')).toContain('max-age=86400');
+		const data = (await response.json()) as LunarInfo;
+		expect(data).toEqual(generateLunarInfo(FIXED_DATE));
+	});
+
+	it('returns a JSON 400 for an invalid or unsupported /api date', async () => {
+		for (const bad of ['not-a-date', '2026-13-01', '1582-10-10']) {
+			const response = await exports.default.fetch(`https://example.com/api/${bad}`);
+			expect(response.status).toBe(400);
+			expect(response.headers.get('content-type')).toBe('application/json;charset=UTF-8');
+			const body = (await response.json()) as { error: string };
+			expect(body.error).toContain('YYYY-MM-DD');
+		}
 	});
 });

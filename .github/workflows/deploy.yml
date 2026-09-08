@@ -23,7 +23,7 @@ jobs:
         run: npm run check
 
       - name: Run tests
-        run: npx vitest run
+        run: npm run test
 
       - name: Deploy to Cloudflare Workers
         run: npm run deploy

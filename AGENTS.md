@@ -6,7 +6,7 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 
 ## Architecture
 
-- **`src/index.ts`** — the entire app. Exports `generateHtml(date: Date): string`, `generateErrorHtml(status)`, `todayInTimeZone(tz, now?)`, and the default Worker handler object. HTML, CSS, and client JS are all inlined in template literals.
+- **`src/index.ts`** — the entire app. Exports `generateLunarInfo(date): LunarInfo` (the shared data source for the HTML page and the JSON API), `generateHtml(date: Date): string`, `generateErrorHtml(status)`, `todayInTimeZone(tz, now?)`, and the default Worker handler object. HTML, CSS, and client JS are all inlined in template literals.
 - **`src/favicon.ts`** — base64-inlined `favicon.ico` (generated file, ~20 KB single-line string; regenerate from `https://s.tie.pub/lunar-icons/favicon.ico` if the icon changes). Served by the `/favicon.ico` route.
 - **`src/lunar-javascript.d.ts`** — manual type declarations. The `lunar-javascript` library ships no TS types; this file is the single source of truth for its API surface. **Update it first** when using any new library method. It is wired via `paths` in `tsconfig.json` (plain top-level exports, **not** `declare module`) because TypeScript 7 ignores ambient module declarations for packages that resolve to a JS file.
 - **`test/index.spec.ts`** — tests import `createExecutionContext`/`waitOnExecutionContext` from `cloudflare:test` and `env`/`exports` from `cloudflare:workers` (the pool's deprecated `cloudflare:test` `env`/`SELF` aliases must not be used), plus `../src/index`. Uses `FIXED_DATE = new Date('2026-04-03T12:00:00Z')` for deterministic assertions.
@@ -31,12 +31,13 @@ Single-file Cloudflare Worker that renders a Traditional Chinese Calendar (农�
 
 - **No lint/format scripts.** Don't invent `npm run lint`. Typechecking is `npm run check`. See commands above.
 - **`lunar-javascript` has no TS types.** Update `src/lunar-javascript.d.ts` first whenever a new API is used (wired via `tsconfig.json` `paths`; keep it wrapper-free). TypeScript is in `strict` mode with `target: es2024`.
-- **`generateHtml()` is exported** specifically for testability. The Worker handler calls it; tests call it directly. Keep it pure (no `Request`/`Response`/`env` access) — the handler owns HTTP concerns.
+- **`generateHtml()` and `generateLunarInfo()` are exported** specifically for testability. The Worker handler calls them; tests call them directly. Keep them pure (no `Request`/`Response`/`env` access) — the handler owns HTTP concerns.
 - **Worker routing** (in `src/index.ts`, default `fetch`):
 	- `GET /` → calendar HTML (`?date=YYYY-MM-DD` overrides today's date; invalid or unsupported dates return a styled **400** page via `generateErrorHtml(400)` — `generateHtml` is wrapped in try/catch because parseable dates in the 1582-10-05..14 Gregorian cutover gap make `lunar-javascript` throw)
 	- `GET /robots.txt`, `/sitemap.xml` → static responses; `GET /favicon.ico` → inlined icon from `src/favicon.ts` (runtime fetch of `s.tie.pub` is impossible: same-zone subrequests redirect-loop)
+	- `GET /api/today` → homepage data as JSON via `generateLunarInfo` ("today" is visitor-timezone aware, like `/`; cached `max-age=3600`); `GET /api/YYYY-MM-DD` → JSON for that fixed date (anchored at UTC noon, cached `max-age=86400`). Invalid or unsupported dates get a JSON **400** `{ "error": "…" }`; multi-segment `/api/...` paths fall through to the HTML 404
 	- any other path → `generateErrorHtml(404)` with status 404 (the shared error-page generator takes a status from the `ERROR_PAGES` copy map)
-- **Workers run in UTC** and `Solar.fromDate` reads local-time getters, so `new Date()` gives the wrong "today" for UTC+8 visitors before 08:00. "Today" is derived via `todayInTimeZone(request.cf?.timezone || 'Asia/Shanghai')` (exported from `src/index.ts`): it anchors the visitor's wall-clock Y/M/D at UTC noon. The footer year follows the displayed date (`solar.getYear()`), not the server clock. Note the homepage is cached per URL (`s-maxage=3600`), so an edge-cached copy can serve another timezone's date within the TTL.
+- **Workers run in UTC** and `Solar.fromDate` reads local-time getters, so `new Date()` gives the wrong "today" for UTC+8 visitors before 08:00. "Today" is derived via `todayInTimeZone(request.cf?.timezone || 'Asia/Shanghai')` (exported from `src/index.ts`): it anchors the visitor's wall-clock Y/M/D at UTC noon. The footer year follows the displayed date (sliced from the `gregorian` field), not the server clock. Note the homepage is cached per URL (`s-maxage=3600`), so an edge-cached copy can serve another timezone's date within the TTL.
 - **No bindings configured.** `Env` is empty (`worker-configuration.d.ts` → `interface __BaseEnv_Env {}`). Don't assume KV/D1/R1/Durable Objects exist.
 
 ## Code Style
@@ -48,6 +49,7 @@ Enforced by `.prettierrc` + `.editorconfig` (no ESLint configured):
 - **140 char** print width
 - **LF** line endings, UTF-8, trailing whitespace trimmed, final newline inserted
 - `.yml` files are the only exception — spaces per `.editorconfig` override
+- **Comments**: only for non-obvious behavior (e.g. the UTC-noon anchor, `writing-mode` quirks), and keep them concise — delete comments that restate what the code already says
 
 ## Testing
 
