@@ -18,6 +18,8 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run cf-typegen
+
       - name: Typecheck
         run: npm run check
 

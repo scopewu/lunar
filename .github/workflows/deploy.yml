@@ -18,6 +18,8 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run cf-typegen
+
       # Gate deploys on the same checks as the Test workflow.
       - name: Typecheck
         run: npm run check
