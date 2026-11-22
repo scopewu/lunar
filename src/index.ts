@@ -131,7 +131,6 @@ export function generateHtml(date: Date): string {
 	</script>
 
 	<style>
-		/* ========== CSS Variables ========== */
 		:root {
 			--color-bg: #FAFAF7;
 			--color-card: #FFFFFF;
@@ -156,7 +155,6 @@ export function generateHtml(date: Date): string {
 							 0 8px 24px rgba(0, 0, 0, 0.04);
 		}
 
-		/* ========== Reset & Base ========== */
 		* {
 			margin: 0;
 			padding: 0;
@@ -176,7 +174,6 @@ export function generateHtml(date: Date): string {
 			line-height: 1.6;
 		}
 
-		/* ========== Container ========== */
 		.container {
 			position: relative;
 			max-width: 520px;
@@ -200,7 +197,6 @@ export function generateHtml(date: Date): string {
 			}
 		}
 
-		/* ========== Reading Mode Toggle ========== */
 		.reading-toggle {
 			position: absolute;
 			top: 16px;
@@ -245,7 +241,6 @@ export function generateHtml(date: Date): string {
 			content: '横';
 		}
 
-		/* ========== Header ========== */
 		.header {
 			text-align: center;
 			margin-block-end: 40px;
@@ -270,12 +265,10 @@ export function generateHtml(date: Date): string {
 			font-weight: 400;
 		}
 
-		/* ========== Sections ========== */
 		.section {
 			margin-block-end: 36px;
 		}
 
-		/* ========== Labels ========== */
 		.label {
 			font-size: 0.75rem;
 			color: var(--color-text-secondary);
@@ -304,7 +297,6 @@ export function generateHtml(date: Date): string {
 			font-size: 0.9rem;
 		}
 
-		/* ========== Values ========== */
 		.value {
 			font-size: 1.15rem;
 			color: var(--color-text-primary);
@@ -319,7 +311,6 @@ export function generateHtml(date: Date): string {
 			letter-spacing: 2px;
 		}
 
-		/* ========== Stems & Branches ========== */
 		.stems-branches {
 			display: flex;
 			flex-direction: column;
@@ -354,7 +345,6 @@ export function generateHtml(date: Date): string {
 			font-family: var(--font-heading);
 		}
 
-		/* ========== Zodiac ========== */
 		.zodiac-container {
 			display: flex;
 			align-items: center;
@@ -381,7 +371,6 @@ export function generateHtml(date: Date): string {
 			text-transform: capitalize;
 		}
 
-		/* ========== Activities (Yi/Ji) ========== */
 		.activities-list {
 			display: flex;
 			flex-wrap: wrap;
@@ -416,7 +405,6 @@ export function generateHtml(date: Date): string {
 			background: #EBEBE9;
 		}
 
-		/* ========== Footer ========== */
 		.footer {
 			text-align: center;
 			margin-block-start: 40px;
@@ -468,7 +456,6 @@ export function generateHtml(date: Date): string {
 			color: var(--color-border);
 		}
 
-		/* ========== Responsive Design ========== */
 		@media (max-width: 500px) {
 			body {
 				padding: 16px;
@@ -547,7 +534,6 @@ export function generateHtml(date: Date): string {
 			}
 		}
 
-		/* ========== Dark Mode ========== */
 		@media (prefers-color-scheme: dark) {
 			:root {
 				--color-bg: #111110;
@@ -580,7 +566,7 @@ export function generateHtml(date: Date): string {
 			}
 		}
 
-		/* ========== Vertical Reading Mode ==========
+		/* Vertical Reading Mode
 		   writing-mode: vertical-rl propagates to descendants, so sections become
 		   right-to-left columns; the container is position:relative, so the
 		   absolutely-positioned toggle stays pinned while it scrolls. */
@@ -593,7 +579,6 @@ export function generateHtml(date: Date): string {
 			max-width: calc(100vw - 40px);
 			max-height: calc(100dvh - 40px);
 			overflow: auto;
-			/* Keep the first column clear of the floating toggle in the top-right corner. */
 			padding-top: 56px;
 		}
 
@@ -611,7 +596,7 @@ export function generateHtml(date: Date): string {
 			}
 		}
 
-		/* ========== Accessibility: Reduced Motion ========== */
+		/* Accessibility: Reduced Motion */
 		@media (prefers-reduced-motion: reduce) {
 			*,
 			*::before,
